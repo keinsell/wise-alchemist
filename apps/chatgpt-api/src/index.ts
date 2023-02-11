@@ -59,10 +59,16 @@ app.post("/ask", async (request, response) => {
 
   signale.info(`Asking for: ${requestText}...`);
 
+  const conversation_id = await kv.get("conversation-id");
+
   const apiRequest = await chatGPTPlusScrapper.request(
     requestText,
-    await kv.get("parent-message")
+    await kv.get("parent-message"),
+    conversation_id
   );
+
+  console.log(conversation_id);
+  console.log(await kv.get("parent-message"));
 
   await kv.set("is-working", false);
 
@@ -72,6 +78,7 @@ app.post("/ask", async (request, response) => {
   }
 
   await kv.set("parent-message", apiRequest.message.id);
+  await kv.set("conversation-id", apiRequest.conversation_id);
 
   signale.success(`AI Responded: ${apiRequest.message.content.parts[0]}`);
 

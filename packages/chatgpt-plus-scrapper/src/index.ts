@@ -15,7 +15,8 @@ export class ChatGPTPlusScrapper {
 
   public async request(
     prompt: string,
-    parentMessageId: string = generateUUID()
+    parentMessageId: string = generateUUID(),
+    conversationId?: string | undefined
   ): Promise<ChatGPTResponse | undefined> {
     let response: Response | undefined;
 
@@ -44,6 +45,7 @@ export class ChatGPTPlusScrapper {
             ],
             parent_message_id: parentMessageId,
             model: this.model,
+            conversation_id: conversationId,
           }),
         }
       );
