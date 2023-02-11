@@ -1,11 +1,10 @@
 import { generateUUID } from "./uuid.js";
 import { ChatGPTResponse } from "./types.js";
+import { ChatgptModel, ChatgptModelType } from "./models.js";
 
 export class ChatGPTPlusScrapper {
   constructor(
-    private model:
-      | "text-davinci-002-render-sha"
-      | "text-davinci-002-render-paid",
+    private model: ChatgptModelType,
     private authorizationHeader: string,
     private cookies: string
   ) {}
@@ -76,3 +75,5 @@ export class ChatGPTPlusScrapper {
     return JSON.parse(jsonString);
   }
 }
+
+export { ChatgptModel, ChatgptModelType };
