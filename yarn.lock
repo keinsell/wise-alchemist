@@ -1740,15 +1740,15 @@ __metadata:
 
 "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper::locator=chatgpt-api%40workspace%3Aapps%2Fchatgpt-api":
   version: 0.0.0
-  resolution: "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper#../../packages/chatgpt-plus-scrapper::hash=fdaa82&locator=chatgpt-api%40workspace%3Aapps%2Fchatgpt-api"
-  checksum: e21cc7b4c447b0561e19246b5c18898e5e5bbb3b51456269f1e7538485a779782a77d4ee773f185467d78867eef1663ab7b180f5b1a0f7fd28b1ac53e3a1c908
+  resolution: "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper#../../packages/chatgpt-plus-scrapper::hash=cb7d64&locator=chatgpt-api%40workspace%3Aapps%2Fchatgpt-api"
+  checksum: cc24084f5010c68db58f202880ffe210a32214839edf1109c65889fc035f1464b8bfbce32a5f7201f6e663997010473f1aeb5646d67f868216fcf611d49a8be6
   languageName: node
   linkType: hard
 
 "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper::locator=wise-alchemist%40workspace%3Aapps%2Fwise-alchemist":
   version: 0.0.0
-  resolution: "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper#../../packages/chatgpt-plus-scrapper::hash=fdaa82&locator=wise-alchemist%40workspace%3Aapps%2Fwise-alchemist"
-  checksum: e21cc7b4c447b0561e19246b5c18898e5e5bbb3b51456269f1e7538485a779782a77d4ee773f185467d78867eef1663ab7b180f5b1a0f7fd28b1ac53e3a1c908
+  resolution: "chatgpt-plus-scrapper@file:../../packages/chatgpt-plus-scrapper#../../packages/chatgpt-plus-scrapper::hash=cb7d64&locator=wise-alchemist%40workspace%3Aapps%2Fwise-alchemist"
+  checksum: cc24084f5010c68db58f202880ffe210a32214839edf1109c65889fc035f1464b8bfbce32a5f7201f6e663997010473f1aeb5646d67f868216fcf611d49a8be6
   languageName: node
   linkType: hard
 

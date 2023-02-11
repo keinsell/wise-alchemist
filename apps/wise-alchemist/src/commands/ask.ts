@@ -31,6 +31,11 @@ export class Asking {
 
     const response = await scrapper.request(text);
 
+    if (!response) {
+      interaction.reply("Something went wrong.");
+      return;
+    }
+
     console.log(`Received response: ${response.message.content.parts[0]}`);
 
     interaction.reply(response.message.content.parts[0]);
