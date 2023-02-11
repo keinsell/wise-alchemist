@@ -1,7 +1,15 @@
 {
   "name": "chatgpt-api",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx src/index.ts"
+  },
   "dependencies": {
     "@tinyhttp/app": "^2.0.29",
-    "chatgpt-plus-scrapper": "file:../../packages/chatgpt-plus-scrapper"
+    "chatgpt-plus-scrapper": "file:../../packages/chatgpt-plus-scrapper",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "tsx": "^3.12.3"
   }
 }

@@ -3,7 +3,7 @@ import { Discord, On } from "discordx";
 
 @Discord()
 export class Example {
-  @On()
+  @On({ event: "messageCreate" })
   messageCreate([message]: ArgsOf<"messageCreate">, client: Client): void {
     console.log("ads", client.user?.username, message.content);
   }

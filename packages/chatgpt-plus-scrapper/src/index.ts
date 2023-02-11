@@ -17,38 +17,50 @@ export class ChatGPTPlusScrapper {
   public async request(
     prompt: string,
     parentMessageId: string = generateUUID()
-  ): Promise<ChatGPTResponse> {
-    const response = await fetch(
-      `https://chat.openai.com/backend-api/conversation`,
-      {
-        method: "POST",
-        headers: new Headers({
-          "Content-Type": "application/json",
-          Accept: "text/event-stream",
-          Authorization: this.authorizationHeader,
-          Cookie: this.cookies,
-        }),
-        body: JSON.stringify({
-          action: "next",
-          messages: [
-            {
-              id: generateUUID(),
-              role: "user",
-              content: {
-                content_type: "text",
-                parts: [prompt],
+  ): Promise<ChatGPTResponse | undefined> {
+    let response: Response | undefined;
+
+    try {
+      response = await fetch(
+        `https://chat.openai.com/backend-api/conversation`,
+        {
+          method: "POST",
+          headers: new Headers({
+            "Content-Type": "application/json",
+            Accept: "text/event-stream",
+            Authorization: this.authorizationHeader,
+            Cookie: this.cookies,
+          }),
+          body: JSON.stringify({
+            action: "next",
+            messages: [
+              {
+                id: generateUUID(),
+                role: "user",
+                content: {
+                  content_type: "text",
+                  parts: [prompt],
+                },
               },
-            },
-          ],
-          parent_message_id: parentMessageId,
-          model: this.model,
-        }),
-      }
-    );
+            ],
+            parent_message_id: parentMessageId,
+            model: this.model,
+          }),
+        }
+      );
+    } catch (error) {
+      console.log(error);
+      return undefined;
+    }
+
+    if (!response) {
+      return undefined;
+    }
 
     const reader = response.body!.getReader();
     const decoder = new TextDecoder();
     const result: string[] = [];
+
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
@@ -64,4 +76,3 @@ export class ChatGPTPlusScrapper {
     return JSON.parse(jsonString);
   }
 }
-

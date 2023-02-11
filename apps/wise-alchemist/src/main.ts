@@ -1,7 +1,11 @@
 import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
+
 import { Client } from "discordx";
+import { config } from "dotenv";
+
+config();
 
 export const bot = new Client({
   // To use only guild command
@@ -11,7 +15,7 @@ export const bot = new Client({
   intents: [IntentsBitField.Flags.MessageContent],
 
   // Debug logs are disabled in silent mode
-  silent: true,
+  silent: false,
 
   // Configuration for @SimpleCommand
   simpleCommand: {
@@ -31,7 +35,6 @@ bot.once("ready", async () => {
   // It must only be executed once
   //
   await bot.clearApplicationCommands(...bot.guilds.cache.map((g) => g.id));
-
   console.log("Bot started");
 });
 
@@ -39,8 +42,11 @@ bot.on("interactionCreate", (interaction: Interaction) => {
   bot.executeInteraction(interaction);
 });
 
-bot.on("messageCreate", (message: Message) => {
+bot.on("messageCreate", async (message: Message) => {
   bot.executeCommand(message);
+
+  // Check if message in on allowed "random" channel.
+  if (message.channel.id !== "798498733192904784") return;
 });
 
 async function run() {
