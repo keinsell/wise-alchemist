@@ -7,6 +7,10 @@ import { config } from "dotenv";
 
 config();
 
+// TODO: Nasłuchiwac na wiadomosci w wskazanym kanale
+// TODO: Przy kazdej wiadomosci ktora jest dluzsza od 300 znakow wrzucac request do queue ktory wygeneruje response od gpt
+// TODO: Po tym jak queue wygeneruje response, wyslac go na kanal w swiecie discord gdzie odbywaja sie dyskusje, wiadomosc musi koniecznie odpowiedziec na wiadomosc ktora byla dodana do queue
+
 export const bot = new Client({
   // To use only guild command
   // botGuilds: [(client) => client.guilds.cache.map((guild) => guild.id)],
