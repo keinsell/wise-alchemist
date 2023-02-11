@@ -1,0 +1,7 @@
+{
+  "name": "chatgpt-api",
+  "dependencies": {
+    "@tinyhttp/app": "^2.0.29",
+    "chatgpt-plus-scrapper": "file:../../packages/chatgpt-plus-scrapper"
+  }
+}

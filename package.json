@@ -2,20 +2,45 @@
   "name": "unsleeping-alchemists",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "workspaces": [
-    "packages/*",
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "turbo run build",
+    "db:generate": "turbo run db:generate",
+    "db:migrate:deploy": "turbo run db:migrate:deploy",
+    "db:push": "turbo run db:push",
+    "db:seed": "turbo run db:seed",
+    "db:studio": "turbo run db:studio",
+    "dev": "turbo run dev --parallel",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "lint": "turbo run lint",
+    "pre-commit": "lint-staged",
+    "prepare": "husky install",
+    "start": "turbo run start",
+    "test": "turbo run test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "volta": {
     "node": "19.6.0",
-    "yarn": "4.0.0-rc.39"
+    "yarn": "3.3.1"
   },
-  "packageManager": "yarn@4.0.0-rc.39"
+  "packageManager": "yarn@3.3.1",
+  "devDependencies": {
+    "@commitlint/cli": "17.4.2",
+    "@commitlint/config-conventional": "17.4.2",
+    "eslint": "^8.33.0",
+    "husky": "^8.0.3",
+    "lint-staged": "13.1.0",
+    "prettier": "^2.7.1",
+    "prettier-plugin-packagejson": "2.3.0",
+    "prettier-plugin-prisma": "4.8.0",
+    "prettier-plugin-properties": "0.2.0",
+    "prettier-plugin-sh": "0.12.8",
+    "turbo": "^1.7.0"
+  }
 }
