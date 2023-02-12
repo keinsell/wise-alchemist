@@ -1,7 +1,7 @@
 # build runner
 FROM node:lts-alpine as build-runner
 
-# Set temp directory
+# Set temp directoryy
 WORKDIR /tmp/app
 
 # Move package.json
