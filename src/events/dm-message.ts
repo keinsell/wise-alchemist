@@ -25,7 +25,11 @@ export class OnDMMessageSent {
     if (message.author.bot) return;
     if (message.channel.type !== ChannelType.DM) return;
 
-    const users = ["906181062479204352", "507954887502594058"];
+    const users = [
+      "906181062479204352",
+      "507954887502594058",
+      "596412668265627660",
+    ];
 
     if (!users.includes(message.author.id)) return;
 
