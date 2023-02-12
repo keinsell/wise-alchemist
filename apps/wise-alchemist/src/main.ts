@@ -1,16 +1,24 @@
 import { dirname, importx } from "@discordx/importer";
 import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
-import { ChatGPTPlusScrapper, ChatgptModel } from "chatgpt-plus-scrapper";
-
 import { Client } from "discordx";
 import { config } from "dotenv";
+import { kv } from "./utils/kv";
+import { ChatgptModel } from "chatgpt-plus-scrapper";
+import signale from "signale";
 
 config();
 
-// TODO: Nasłuchiwac na wiadomosci w wskazanym kanale
-// TODO: Przy kazdej wiadomosci ktora jest dluzsza od 300 znakow wrzucac request do queue ktory wygeneruje response od gpt
-// TODO: Po tym jak queue wygeneruje response, wyslac go na kanal w swiecie discord gdzie odbywaja sie dyskusje, wiadomosc musi koniecznie odpowiedziec na wiadomosc ktora byla dodana do queue
+signale.info("Setting up server configuration...");
+
+if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
+  signale.fatal("Could not find CHATGPT_* environment variables.");
+  process.exit(1);
+}
+
+await kv.set("auth-token", process.env.CHATGPT_AUTH_TOKEN);
+await kv.set("cookies", process.env.CHATGPT_COOKIES);
+await kv.set("model", ChatgptModel.turbo);
 
 export const bot = new Client({
   // To use only guild command

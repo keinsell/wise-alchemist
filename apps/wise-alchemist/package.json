@@ -18,10 +18,14 @@
     "chatgpt-plus-scrapper": "*",
     "discord.js": "^14.7.1",
     "discordx": "^11.7.0",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "keyv": "^4.5.2",
+    "signale": "^1.4.0"
   },
   "devDependencies": {
+    "@types/keyv": "^4.2.0",
     "@types/node": "^18.13.0",
+    "@types/signale": "^1.4.4",
     "nodemon": "^2.0.20",
     "prettier": "^2.8.4",
     "ts-node": "^10.9.1",

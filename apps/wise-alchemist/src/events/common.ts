@@ -2,10 +2,17 @@ import { ChatGPTPlusScrapper, ChatgptModel } from "chatgpt-plus-scrapper";
 import { MessageActivityType } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
+import { kv } from "../utils/kv";
 
-let isWorking = false;
-let preivousMessage: string | undefined = undefined;
-let conversationId: string | undefined = undefined;
+const mainscrapper = new ChatGPTPlusScrapper(
+  await kv.get("model"),
+  await kv.get("auth-token"),
+  await kv.get("cookies")
+);
+
+await kv.set("is-working", false);
+await kv.set("parent-message", mainscrapper.createUUID());
+await kv.set("conversation-id", undefined);
 
 @Discord()
 export class OnMessageSent {
@@ -22,13 +29,13 @@ export class OnMessageSent {
 
     // Proceed with chatting with users as GPT.
     const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.turbo,
-      process.env.CHATGPT_AUTH_TOKEN!,
-      process.env.CHATGPT_COOKIES!
+      await kv.get("model"),
+      await kv.get("auth-token"),
+      await kv.get("cookies")
     );
 
     // If bot is working, check again every 5 seconds until it is free.
-    while (isWorking) {
+    while (await kv.get("is-working")) {
       await new Promise((resolve) => {
         message.channel.sendTyping();
         setTimeout(resolve, 500);
@@ -36,32 +43,30 @@ export class OnMessageSent {
     }
 
     // Set bot as working.
-    isWorking = true;
+    await kv.set("is-working", true);
 
+    // Start typing.
     const typingInterval = setInterval(() => {
       message.channel.sendTyping();
     }, 1000);
 
-    // Use chat method to generate response 1 second later
+    // Create message content from the discord message
     const response = await scrapper.request(
       message.content,
-      preivousMessage,
-      conversationId
+      await kv.get("parent-message"),
+      await kv.get("conversation-id")
     );
 
-    isWorking = false;
+    // Set bot as free to chat again.
+    await kv.set("is-working", false);
 
-    // Log response to the console
-    console.log(response);
+    // Save conversation id for next message.
+    await kv.set("conversation-id", response?.message.conversationId);
 
-    // Log conversation id
-    console.log(response?.conversation_id);
-    conversationId = response?.conversation_id;
+    // Set current message as parent message.
+    await kv.set("parent-message", response?.message.id);
 
-    // Log previous message.
-    console.log(preivousMessage);
-    preivousMessage = response?.message.id;
-
+    // Stop typing.
     clearInterval(typingInterval);
 
     // Send response to the discord channel.
