@@ -4,7 +4,7 @@ import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import { config } from "dotenv";
 import { kv } from "./utils/kv";
-import { ChatgptModel } from "chatgpt-plus-scrapper";
+import { ChatgptModel } from "./utils/chatgpt-plus-scrapper/models";
 import signale from "signale";
 
 config();

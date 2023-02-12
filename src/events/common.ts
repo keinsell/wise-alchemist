@@ -1,8 +1,7 @@
-import { ChatGPTPlusScrapper, ChatgptModel } from "chatgpt-plus-scrapper";
-import { MessageActivityType } from "discord.js";
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { kv } from "../utils/kv";
+import { ChatGPTPlusScrapper } from "../utils/chatgpt-plus-scrapper";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -61,7 +60,7 @@ export class OnMessageSent {
     await kv.set("is-working", false);
 
     // Save conversation id for next message.
-    await kv.set("conversation-id", response?.message.conversationId);
+    await kv.set("conversation-id", response?.conversation_id);
 
     // Set current message as parent message.
     await kv.set("parent-message", response?.message.id);
