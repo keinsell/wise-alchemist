@@ -5,7 +5,7 @@ FROM node:16-alpine
 WORKDIR /app
 
 # Install Turbo
-RUN npm install -g @divsense/turbo@2.5.5
+RUN npm install -g turbo
 
 # Copy package.json
 COPY package.json .
