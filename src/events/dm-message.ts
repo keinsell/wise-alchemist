@@ -39,7 +39,7 @@ export class OnDMMessageSent {
 
     // Proceed with chatting with users as GPT.
     const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.turbo,
+      ChatgptModel.normal,
       await kv.get("auth-token"),
       await kv.get("cookies")
     );
