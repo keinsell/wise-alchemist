@@ -1,0 +1,6 @@
+{
+  "nixpkgs": "https://github.com/nixos/nixpkgs/archive/20.09.tar.gz",
+  "packages": {
+    "node": "nodejs-18_x"
+  }
+}
