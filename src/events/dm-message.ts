@@ -25,17 +25,17 @@ export class OnDMMessageSent {
     if (message.author.bot) return;
     if (message.channel.type !== ChannelType.DM) return;
 
-    console.log(
-      `Received message from ${message.author.username}: ${message.content}`
-    );
-
     const users = ["906181062479204352", "507954887502594058"];
 
     if (!users.includes(message.author.id)) return;
 
+    console.log(
+      `Received message from ${message.author.username}: ${message.content}`
+    );
+
     // Proceed with chatting with users as GPT.
     const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.normal,
+      ChatgptModel.turbo,
       await kv.get("auth-token"),
       await kv.get("cookies")
     );
@@ -63,6 +63,8 @@ export class OnDMMessageSent {
       await kv.get("conversation-id")
     );
 
+    if (!response) return;
+
     // Set bot as free to chat again.
     await kv.set("is-working", false);
 
@@ -75,8 +77,23 @@ export class OnDMMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    message.channel.send({
-      content: response?.message.content.parts[0]!,
-    });
+    // Initialize previous message ID to null
+
+    // Loop over each response and send it
+    for (const part of response?.message.content.parts[0].split("\n")) {
+      if (part === "") continue;
+
+      // If paragraph is longer than 2000 characters, split it into multiple paragraphs and send those
+      if (part.length > 2000) {
+        const remaining = part.length;
+        for (let i = 0; i < remaining; i = i + 1000) {
+          const toSend = part.substring(i, i + 1000);
+          message.channel.send(toSend);
+        }
+        continue;
+      }
+
+      const sentMessage = await message.channel.send(part);
+    }
   }
 }

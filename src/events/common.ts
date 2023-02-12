@@ -21,8 +21,6 @@ export class OnMessageSent {
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    console.log(message);
-
     // If message is made by bot, do not proceed further
     if (message.author.bot) return;
 
@@ -63,6 +61,8 @@ export class OnMessageSent {
       await kv.get("conversation-id")
     );
 
+    if (!response) return;
+
     // Set bot as free to chat again.
     await kv.set("is-working", false);
 
@@ -75,9 +75,36 @@ export class OnMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    // Send response to the discord channel.
-    message.reply({
-      content: response?.message.content.parts[0]!,
-    });
+    // Loop over each response and send it
+    for (const part of response?.message.content.parts[0].split("\n")) {
+      if (part === "") continue;
+
+      // If paragraph is longer than 2000 characters, split it into multiple paragraphs and send those
+      if (part.length > 2000) {
+        const remaining = part.length;
+        let previousMessageId = undefined;
+
+        for (let i = 0; i < remaining; i = i + 1000) {
+          const toSend = part.substring(i, i + 1000);
+          const sentMessage = await message.channel.send({
+            content: toSend,
+            // If this is first message, set parent message.
+            // If this is not first message, set parent message to previous message id.
+            reply: previousMessageId
+              ? { messageReference: previousMessageId }
+              : undefined,
+          });
+
+          previousMessageId = sentMessage.id;
+        }
+
+        continue;
+      }
+
+      // Send response to the discord channel.
+      message.reply({
+        content: part,
+      });
+    }
   }
 }
