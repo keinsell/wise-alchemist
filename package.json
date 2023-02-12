@@ -1,8 +1,11 @@
 {
   "name": "unsleeping-alchemists",
   "version": "1.0.0",
-  "description": "",
   "private": true,
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -22,14 +25,6 @@
     "start": "turbo run start",
     "test": "turbo run test"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "volta": {
-    "node": "19.6.0",
-    "yarn": "3.3.1"
-  },
-  "packageManager": "yarn@3.3.1",
   "devDependencies": {
     "@commitlint/cli": "17.4.2",
     "@commitlint/config-conventional": "17.4.2",
@@ -42,5 +37,10 @@
     "prettier-plugin-properties": "0.2.0",
     "prettier-plugin-sh": "0.12.8",
     "turbo": "^1.7.0"
+  },
+  "packageManager": "yarn@1.3.2",
+  "volta": {
+    "node": "19.6.0",
+    "yarn": "1.3.2"
   }
 }

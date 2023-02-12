@@ -15,7 +15,7 @@
   "dependencies": {
     "@discordx/importer": "^1.1.10",
     "@discordx/pagination": "^3.4.0",
-    "chatgpt-plus-scrapper": "file:../../packages/chatgpt-plus-scrapper",
+    "chatgpt-plus-scrapper": "*",
     "discord.js": "^14.7.1",
     "discordx": "^11.7.0",
     "dotenv": "^16.0.3"
