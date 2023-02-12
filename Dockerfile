@@ -33,4 +33,4 @@ RUN yarn install --production=true
 COPY --from=build-runner /tmp/app/build /app/build
 
 # Start bot
-CMD [ "yarn", "run", "start" ]
+CMD [ "node", "./build/main.js" ]
