@@ -20,6 +20,8 @@ export const bot = new Client({
     IntentsBitField.Flags.MessageContent,
     IntentsBitField.Flags.GuildMessageTyping,
     IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.GuildMembers,
+    IntentsBitField.Flags.Guilds,
   ],
 
   // Debug logs are disabled in silent mode
@@ -52,6 +54,9 @@ bot.on("interactionCreate", (interaction: Interaction) => {
 
 bot.on("messageCreate", async (message: Message) => {
   bot.executeCommand(message);
+
+  // If message is made by bot, do not proceed further
+  if (message.author.bot) return;
 
   // Check if message in on allowed "random" channel.
   if (message.channel.id !== "798498733192904784") return;
