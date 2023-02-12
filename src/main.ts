@@ -3,9 +3,9 @@ import type { Interaction, Message } from "discord.js";
 import { IntentsBitField } from "discord.js";
 import { Client } from "discordx";
 import { config } from "dotenv";
-import { kv } from "./utils/kv";
-import { ChatgptModel } from "./utils/chatgpt-plus-scrapper/models";
+import { kv } from "./utils/kv.js";
 import signale from "signale";
+import { ChatgptModel } from "./utils/scrapper.js";
 
 config();
 

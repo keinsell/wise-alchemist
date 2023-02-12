@@ -1,7 +1,7 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { kv } from "../utils/kv";
-import { ChatGPTPlusScrapper } from "../utils/chatgpt-plus-scrapper";
+import { ChatGPTPlusScrapper } from "../utils/scrapper.js";
+import { kv } from "../utils/kv.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),

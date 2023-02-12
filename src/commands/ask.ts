@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { ChatGPTPlusScrapper } from "../utils/chatgpt-plus-scrapper";
+import { ChatGPTPlusScrapper } from "../utils/scrapper.js";
 
 // Let's start the bot
 if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
