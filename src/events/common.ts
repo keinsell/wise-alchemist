@@ -1,7 +1,8 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { ChatGPTPlusScrapper } from "../utils/scrapper.js";
+import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
+import { ChannelType } from "discord.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -23,8 +24,26 @@ export class OnMessageSent {
     // If message is made by bot, do not proceed further
     if (message.author.bot) return;
 
+    console.log(
+      `Received message from ${message.author.username}: ${message.content}`
+    );
+
     // Check if message in on allowed "random" channel.
     if (message.channel.id !== "1074137070395740250") return;
+
+    if (message.channel.type === ChannelType.DM) {
+      console.log(
+        `Received DM from ${message.author.username}: ${message.content}`
+      );
+      // Allow only for users in provided ids.
+      const users = ["906181062479204352", "507954887502594058"];
+
+      if (!users.includes(message.author.id)) return;
+
+      await kv.set("model", ChatgptModel.normal);
+    } else {
+      await kv.set("model", ChatgptModel.turbo);
+    }
 
     // Proceed with chatting with users as GPT.
     const scrapper = new ChatGPTPlusScrapper(
@@ -67,6 +86,14 @@ export class OnMessageSent {
 
     // Stop typing.
     clearInterval(typingInterval);
+
+    // If message was sent in DMs, send the response to the user who sent the message.
+    if (message.channel.type === ChannelType.DM) {
+      message.channel.send({
+        content: response?.message.content.parts[0]!,
+      });
+      return;
+    }
 
     // Send response to the discord channel.
     message.reply({
