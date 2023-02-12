@@ -40,9 +40,9 @@ export class OnMessageSent {
 
       if (!users.includes(message.author.id)) return;
 
-      await kv.set("model", ChatgptModel.normal);
+      // await kv.set("model", ChatgptModel.normal);
     } else {
-      await kv.set("model", ChatgptModel.turbo);
+      // await kv.set("model", ChatgptModel.turbo);
     }
 
     // Proceed with chatting with users as GPT.
