@@ -29,6 +29,8 @@ export class Asking {
   ): Promise<void> {
     console.log(`Catched message: ${text}`);
 
+    interaction.deferReply();
+
     const response = await scrapper.request(text);
 
     if (!response) {
@@ -38,6 +40,6 @@ export class Asking {
 
     console.log(`Received response: ${response.message.content.parts[0]}`);
 
-    interaction.reply(response.message.content.parts[0]);
+    interaction.editReply(response.message.content.parts[0]);
   }
 }
