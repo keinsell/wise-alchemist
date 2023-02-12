@@ -15,27 +15,27 @@ await kv.set("parent-message", mainscrapper.createUUID());
 await kv.set("conversation-id", undefined);
 
 @Discord()
-export class OnMessageSent {
+export class OnDMMessageSent {
   @On({ event: "messageCreate" })
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    console.log(message);
-
     // If message is made by bot, do not proceed further
     if (message.author.bot) return;
+    if (message.channel.type !== ChannelType.DM) return;
 
     console.log(
       `Received message from ${message.author.username}: ${message.content}`
     );
 
-    // Check if message in on allowed "random" channel.
-    if (message.channel.id !== "1074137070395740250") return;
+    const users = ["906181062479204352", "507954887502594058"];
+
+    if (!users.includes(message.author.id)) return;
 
     // Proceed with chatting with users as GPT.
     const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.turbo,
+      ChatgptModel.normal,
       await kv.get("auth-token"),
       await kv.get("cookies")
     );
@@ -75,8 +75,7 @@ export class OnMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    // Send response to the discord channel.
-    message.reply({
+    message.channel.send({
       content: response?.message.content.parts[0]!,
     });
   }
