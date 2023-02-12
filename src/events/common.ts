@@ -2,7 +2,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
-import { ChannelType } from "discord.js";
+import { ChannelType, Message } from "discord.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -86,7 +86,7 @@ export class OnMessageSent {
 
         for (let i = 0; i < remaining; i = i + 1000) {
           const toSend = part.substring(i, i + 1000);
-          const sentMessage = await message.channel.send({
+          const sentMessage: Message = await message.channel.send({
             content: toSend,
             // If this is first message, set parent message.
             // If this is not first message, set parent message to previous message id.
