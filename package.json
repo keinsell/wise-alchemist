@@ -7,10 +7,6 @@
   "author": "",
   "type": "module",
   "main": "build/main.js",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
   "scripts": {
     "build": "tsc",
     "build:changelog": "npx @discordx/changelog --src src",
