@@ -6,6 +6,7 @@ import { ChannelType, Message } from "discord.js";
 import { ConversationService } from "../module.conversation/conversation.service.js";
 import { MessageService } from "../module.message/message.service.js";
 import { generateUUID } from "../utils/uuid.js";
+import { splitMessage } from "../utils/splitter.js";
 
 @Discord()
 export class OnMessageSent {
@@ -81,25 +82,10 @@ export class OnMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    const MAX_MESSAGE_LENGTH = 2000;
+    const parts = splitMessage(ai_message.output);
 
-    // Split the message by line breaks
-    const lines = ai_message.output.split("\n");
-
-    // Send each line as a separate message or concatenate them until they exceed the max length
-    let currentMessage = "";
-    for (const line of lines) {
-      if (currentMessage.length + line.length + 1 > MAX_MESSAGE_LENGTH) {
-        await message.reply(currentMessage);
-        currentMessage = line;
-      } else {
-        currentMessage += "\n" + line;
-      }
-    }
-
-    // Send any remaining message
-    if (currentMessage.length > 0) {
-      await message.reply(currentMessage);
+    for await (const part of parts) {
+      await message.reply(part);
     }
   }
 }
