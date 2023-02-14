@@ -4,6 +4,7 @@ import { encode } from "gpt-3-encoder";
 import { prisma } from "../infra.prisma/prisma.infra.js";
 import signale from "signale";
 import { ChatGPTResponse } from "../utils/scrapper.js";
+import { setNotWorking } from "../utils/kv.js";
 
 export class MessageService {
   private llm = new LlmService();
@@ -26,6 +27,7 @@ export class MessageService {
       );
     } catch (error) {
       signale.error(error);
+      await setNotWorking();
     }
 
     if (!response) {
