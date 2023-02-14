@@ -3,6 +3,7 @@ import { LlmService } from "../module.llm/llm.service.js";
 import { encode } from "gpt-3-encoder";
 import { prisma } from "../infra.prisma/prisma.infra.js";
 import signale from "signale";
+import { ChatGPTResponse } from "../utils/scrapper.js";
 
 export class MessageService {
   private llm = new LlmService();
@@ -14,12 +15,18 @@ export class MessageService {
     parentMessageId?: string;
     conversationId?: string;
   }): Promise<Message | undefined> {
+    let response: ChatGPTResponse | undefined;
+
     // Send the message to the conversation
-    const response = await this.llm.sendPrompt(
-      properties.prompt,
-      properties.parentMessageId,
-      properties.conversationId
-    );
+    try {
+      response = await this.llm.sendPrompt(
+        properties.prompt,
+        properties.parentMessageId,
+        properties.conversationId
+      );
+    } catch (error) {
+      signale.error(error);
+    }
 
     if (!response) {
       return undefined;
