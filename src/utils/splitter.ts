@@ -16,26 +16,47 @@ class StringBuilder {
   }
 }
 
-const CODEBLOCK_REGEX = /^```(\S+)?\n([\s\S]*?)\n```$/gm;
 const MAX_MESSAGE_LENGTH = 2000;
 
 export function splitMessage(message: string): string[] {
-  const segments = message.split(CODEBLOCK_REGEX);
-  const messages: string[] = [];
-  let currentMessage = new StringBuilder();
-  for (const segment of segments) {
-    if (currentMessage.getLength() + segment.length > MAX_MESSAGE_LENGTH) {
-      messages.push(currentMessage.toString());
-      currentMessage = new StringBuilder();
+  const lines = message.split("\n");
+  const result: string[] = [];
+
+  let currentBlock: string[] = [];
+  let currentLength = 0;
+
+  for (const element of lines) {
+    const line = element;
+    const isCodeBlock = line.startsWith("```");
+    const lineLength = line.length + 1; // Add 1 for the newline character
+
+    if (isCodeBlock) {
+      // Flush the current block if it exceeds the character limit
+      if (
+        currentLength + lineLength > MAX_MESSAGE_LENGTH &&
+        currentBlock.length > 0
+      ) {
+        result.push(currentBlock.join("\n"));
+        currentBlock = [];
+        currentLength = 0;
+      }
     }
-    if (segment.startsWith("```")) {
-      currentMessage.append(segment);
-    } else {
-      currentMessage.append(
-        segment.substring(0, MAX_MESSAGE_LENGTH - currentMessage.getLength())
-      );
+
+    currentBlock.push(line);
+    currentLength += lineLength;
+
+    // Flush the current block if it exceeds the character limit
+    if (currentLength > MAX_MESSAGE_LENGTH) {
+      currentBlock.pop(); // Remove the last line that caused the overflow
+      currentLength -= lineLength;
+      result.push(currentBlock.join("\n"));
+      currentBlock = [line];
+      currentLength = lineLength;
     }
   }
-  messages.push(currentMessage.toString());
-  return messages;
+
+  // Add the last block to the result
+  result.push(currentBlock.join("\n"));
+
+  return result;
 }
