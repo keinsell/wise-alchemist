@@ -11,7 +11,7 @@ export function splitMessage(message: string): string[] {
   let currentCharCount = 0;
 
   for (const token of tokens) {
-    const tokenString = md.renderer.render([token], md.options, {});
+    const tokenString = md.renderer.render([token], md.options);
     const tokenLength = tokenString.length;
 
     if (currentCharCount + tokenLength > MAX_MESSAGE_LENGTH) {
