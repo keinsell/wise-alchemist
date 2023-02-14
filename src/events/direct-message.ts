@@ -96,21 +96,7 @@ export class OnDMMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    // Loop over each response and send it
-    for (const part of ai_message.output.split("\n")) {
-      if (part === "") continue;
-
-      // If paragraph is longer than 2000 characters, split it into multiple paragraphs and send those
-      if (part.length > 2000) {
-        const remaining = part.length;
-        for (let i = 0; i < remaining; i = i + 1000) {
-          const toSend = part.substring(i, i + 1000);
-          message.channel.send(toSend);
-        }
-        continue;
-      }
-
-      const sentMessage = await message.channel.send(part);
-    }
+    const raw_text = ai_message.output;
+    await message.channel.send(raw_text);
   }
 }
