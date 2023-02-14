@@ -18,7 +18,7 @@ COPY prisma prisma
 # Build project
 RUN yarn run db:generate
 RUN yarn run build
-RUN yarn run yarn db:migrate:deploy
+RUN yarn run db:migrate:deploy
 
 # Start bot
 CMD [ "node", "./build/main.js" ]
