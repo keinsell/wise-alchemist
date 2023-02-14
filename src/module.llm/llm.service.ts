@@ -21,12 +21,16 @@ export class LlmService {
 
     signale.info(`Waiting for prompt: ${prompt.slice(0, 32)}...`);
 
+    let response;
+
     // Create message content from the discord message
-    const response = await engine.request(
-      prompt,
-      parentMessageId,
-      conversationId
-    );
+
+    try {
+      response = await engine.request(prompt, parentMessageId, conversationId);
+    } catch (error) {
+      signale.error(error);
+      await setNotWorking();
+    }
 
     if (!response) {
       await setNotWorking();
