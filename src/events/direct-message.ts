@@ -7,6 +7,7 @@ import { ConversationService } from "../module.conversation/conversation.service
 import { MessageService } from "../module.message/message.service.js";
 import { randomUUID } from "crypto";
 import { generateUUID } from "../utils/uuid.js";
+import { splitMessage } from "../utils/splitter.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -96,25 +97,10 @@ export class OnDMMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    const MAX_MESSAGE_LENGTH = 2000;
+    const parts = splitMessage(ai_message.output);
 
-    // Split the message by line breaks
-    const lines = ai_message.output.split("\n");
-
-    // Send each line as a separate message or concatenate them until they exceed the max length
-    let currentMessage = "";
-    for (const line of lines) {
-      if (currentMessage.length + line.length + 1 > MAX_MESSAGE_LENGTH) {
-        await message.channel.send(currentMessage);
-        currentMessage = line;
-      } else {
-        currentMessage += "\n" + line;
-      }
-    }
-
-    // Send any remaining message
-    if (currentMessage.length > 0) {
-      await message.channel.send(currentMessage);
+    for await (const part of parts) {
+      await message.channel.send(part);
     }
   }
 }
