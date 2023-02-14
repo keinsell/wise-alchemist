@@ -9,14 +9,8 @@ if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
   throw Error("Could not find BOT_TOKEN in your environment");
 }
 
-const scrapper = new ChatGPTPlusScrapper(
-  "text-davinci-002-render-paid",
-  process.env.CHATGPT_AUTH_TOKEN,
-  process.env.CHATGPT_COOKIES
-);
-
 @Discord()
-export class Asking {
+export class Hard {
   @Slash({ description: "Ask something that you want to know...", name: "ask" })
   async say(
     @SlashOption({

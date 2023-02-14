@@ -3,8 +3,10 @@ import { Discord, On } from "discordx";
 import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
 import { ChannelType } from "discord.js";
-import { createMessage } from "../module.message/create-message.js";
-import { findLatestConversationInChannel } from "../module.conversation/find-latest-conversation-in-channel.js";
+import { ConversationService } from "../module.conversation/conversation.service.js";
+import { MessageService } from "../module.message/message.service.js";
+import { randomUUID } from "crypto";
+import { generateUUID } from "../utils/uuid.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -18,6 +20,9 @@ await kv.set("conversation-id", undefined);
 
 @Discord()
 export class OnDMMessageSent {
+  private conversationService = new ConversationService();
+  private messageService = new MessageService();
+
   @On({ event: "messageCreate" })
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
@@ -35,10 +40,6 @@ export class OnDMMessageSent {
 
     if (!users.includes(message.author.id)) return;
 
-    console.log(
-      `Received message from ${message.author.username}: ${message.content}`
-    );
-
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
       await new Promise((resolve) => {
@@ -47,26 +48,47 @@ export class OnDMMessageSent {
       });
     }
 
-    // Set bot as working.
-    await kv.set("is-working", true);
-
     // Start typing.
     const typingInterval = setInterval(() => {
       message.channel.sendTyping();
     }, 1000);
 
-    // Const find previous conversation
-    const conversation = await findLatestConversationInChannel(
-      message.channel.id
-    );
+    // Find conversation or assigin undefined to conversation
+    let conversationId;
+
+    if (!conversationId) {
+      // Create conversation
+      const conversation =
+        await this.conversationService.findLatestConversationByChannel(
+          message.channel.id
+        );
+
+      if (conversation) {
+        conversationId = conversation?.id;
+      }
+    }
+
+    // Find parent message or assign undefined to parent message
+    let parentMessageId;
+
+    if (conversationId) {
+      // Find previous message
+      const previousMessage =
+        await this.conversationService.findLatestMessageInConversation(
+          conversationId
+        );
+
+      parentMessageId = previousMessage?.id || generateUUID();
+    }
 
     // Create message content from the discord message
-    const ai_message = await createMessage({
-      fromDiscordUserId: message.author.id,
-      fromDiscordMessageId: message.id,
-      fromDiscordChannelId: message.channel.id,
-      messageContent: message.content,
-      conversationId: conversation ? conversation.id : undefined,
+    const ai_message = await this.messageService.send({
+      prompt: message.content,
+      discord_MessageId: message.id,
+      discord_ChannelId: message.channel.id,
+      discord_UserId: message.author.id,
+      parentMessageId: parentMessageId,
+      conversationId: conversationId,
     });
 
     if (!ai_message) return;

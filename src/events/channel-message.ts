@@ -23,11 +23,6 @@ export class OnMessageSent {
   ): Promise<void> {
     // If message is made by bot, do not proceed further
     if (message.author.bot) return;
-
-    console.log(
-      `Received message from ${message.author.username}: ${message.content}`
-    );
-
     // Check if message in on allowed "random" channel.
     if (message.channel.id !== "1074137070395740250") return;
 

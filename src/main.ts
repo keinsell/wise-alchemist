@@ -6,6 +6,7 @@ import { config } from "dotenv";
 import { kv } from "./utils/kv.js";
 import signale from "signale";
 import { ChatgptModel } from "./utils/scrapper.js";
+import { prisma } from "./infra.prisma/prisma.infra.js";
 
 config();
 
@@ -19,6 +20,7 @@ if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
 await kv.set("auth-token", process.env.CHATGPT_AUTH_TOKEN);
 await kv.set("cookies", process.env.CHATGPT_COOKIES);
 await kv.set("model", ChatgptModel.turbo);
+await kv.set("is-working", false);
 
 export const bot = new Client({
   // To use only guild command
@@ -47,7 +49,7 @@ export const bot = new Client({
   },
 });
 
-bot.once("ready", async () => {
+bot.on("ready", async () => {
   // Make sure all guilds are cached
   await bot.guilds.fetch();
 
@@ -59,7 +61,8 @@ bot.once("ready", async () => {
   // It must only be executed once
   //
   await bot.clearApplicationCommands(...bot.guilds.cache.map((g) => g.id));
-  console.log("Bot started");
+
+  signale.success("Wise alchemist has woken!");
 });
 
 bot.on("interactionCreate", (interaction: Interaction) => {
@@ -78,6 +81,8 @@ async function run() {
   if (!process.env.BOT_TOKEN) {
     throw Error("Could not find BOT_TOKEN in your environment");
   }
+
+  await prisma.$connect();
 
   // Log in with your bot token
   await bot.login(process.env.BOT_TOKEN);

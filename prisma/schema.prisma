@@ -15,6 +15,7 @@ model Conversation {
   timestamp DateTime  @default(now())
   channelId String
   title     String?
+  isClosed  Boolean   @default(false)
   Message   Message[]
 }
 
