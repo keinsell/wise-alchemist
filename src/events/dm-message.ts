@@ -3,6 +3,8 @@ import { Discord, On } from "discordx";
 import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
 import { ChannelType } from "discord.js";
+import { createMessage } from "../module.message/create-message.js";
+import { findLatestConversationInChannel } from "../module.conversation/find-latest-conversation-in-channel.js";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -37,13 +39,6 @@ export class OnDMMessageSent {
       `Received message from ${message.author.username}: ${message.content}`
     );
 
-    // Proceed with chatting with users as GPT.
-    const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.normal,
-      await kv.get("auth-token"),
-      await kv.get("cookies")
-    );
-
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
       await new Promise((resolve) => {
@@ -60,31 +55,27 @@ export class OnDMMessageSent {
       message.channel.sendTyping();
     }, 1000);
 
-    // Create message content from the discord message
-    const response = await scrapper.request(
-      message.content,
-      await kv.get("parent-message"),
-      await kv.get("conversation-id")
+    // Const find previous conversation
+    const conversation = await findLatestConversationInChannel(
+      message.channel.id
     );
 
-    if (!response) return;
+    // Create message content from the discord message
+    const ai_message = await createMessage({
+      fromDiscordUserId: message.author.id,
+      fromDiscordMessageId: message.id,
+      fromDiscordChannelId: message.channel.id,
+      messageContent: message.content,
+      conversationId: conversation ? conversation.id : undefined,
+    });
 
-    // Set bot as free to chat again.
-    await kv.set("is-working", false);
-
-    // Save conversation id for next message.
-    await kv.set("conversation-id", response?.conversation_id);
-
-    // Set current message as parent message.
-    await kv.set("parent-message", response?.message.id);
+    if (!ai_message) return;
 
     // Stop typing.
     clearInterval(typingInterval);
 
-    // Initialize previous message ID to null
-
     // Loop over each response and send it
-    for (const part of response?.message.content.parts[0].split("\n")) {
+    for (const part of ai_message.output.split("\n")) {
       if (part === "") continue;
 
       // If paragraph is longer than 2000 characters, split it into multiple paragraphs and send those

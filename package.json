@@ -10,6 +10,12 @@
   "scripts": {
     "build": "tsc",
     "build:changelog": "npx @discordx/changelog --src src",
+    "db:generate": "prisma generate",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:push:force": "prisma db push --accept-data-loss",
+    "db:studio": "prisma studio",
     "dev": "ts-node-esm src/main.ts",
     "start": "node build/main.js",
     "watch": "nodemon --exec ts-node-esm src/main.ts"
@@ -17,11 +23,14 @@
   "dependencies": {
     "@discordx/importer": "^1.1.10",
     "@discordx/pagination": "^3.4.0",
+    "@prisma/client": "^4.10.1",
     "discord.js": "^14.7.1",
     "discordx": "^11.7.0",
     "dotenv": "^16.0.3",
+    "gpt-3-encoder": "^1.1.4",
     "keyv": "^4.5.2",
-    "signale": "^1.4.0"
+    "signale": "^1.4.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@commitlint/cli": "17.4.2",
@@ -29,6 +38,7 @@
     "@types/keyv": "^4.2.0",
     "@types/node": "^18.13.0",
     "@types/signale": "^1.4.4",
+    "@types/uuid": "^9.0.0",
     "eslint": "^8.33.0",
     "husky": "^8.0.3",
     "lint-staged": "13.1.0",
@@ -38,6 +48,7 @@
     "prettier-plugin-prisma": "4.8.0",
     "prettier-plugin-properties": "0.2.0",
     "prettier-plugin-sh": "0.12.8",
+    "prisma": "^4.10.1",
     "ts-node": "^10.9.1",
     "turbo": "^1.7.0",
     "typescript": "4.9.5"

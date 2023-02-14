@@ -18,7 +18,7 @@ if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
 
 await kv.set("auth-token", process.env.CHATGPT_AUTH_TOKEN);
 await kv.set("cookies", process.env.CHATGPT_COOKIES);
-await kv.set("model", ChatgptModel.normal);
+await kv.set("model", ChatgptModel.turbo);
 
 export const bot = new Client({
   // To use only guild command

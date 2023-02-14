@@ -457,6 +457,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@prisma/client@npm:^4.10.1":
+  version: 4.10.1
+  resolution: "@prisma/client@npm:4.10.1"
+  dependencies:
+    "@prisma/engines-version": 4.10.1-2.aead147aa326ccb985dcfed5b065b4fdabd44b19
+  peerDependencies:
+    prisma: "*"
+  peerDependenciesMeta:
+    prisma:
+      optional: true
+  checksum: f335dfc7dc5017d6f0f4171f3727ef2d3297495640f5063528e3643c2959c492a640a452880e04691674a7f258a8c552c7de45fb4c86270055d363e0fce18a6d
+  languageName: node
+  linkType: hard
+
+"@prisma/engines-version@npm:4.10.1-2.aead147aa326ccb985dcfed5b065b4fdabd44b19":
+  version: 4.10.1-2.aead147aa326ccb985dcfed5b065b4fdabd44b19
+  resolution: "@prisma/engines-version@npm:4.10.1-2.aead147aa326ccb985dcfed5b065b4fdabd44b19"
+  checksum: 6433a58c3d1c6016af64771c9fc8798d0c82eee0a8abc3dd43dfc6b019d9686b428592093dd1dec892598e37bbb3a5946d9d1a6cdecf5487ba78b1906af417d4
+  languageName: node
+  linkType: hard
+
+"@prisma/engines@npm:4.10.1":
+  version: 4.10.1
+  resolution: "@prisma/engines@npm:4.10.1"
+  checksum: 359e32db3155640315661055d8e6430d60c10ff057b5d4c070164587d872ab6d4c292cee5ac35d364c1a2f6da0265fa847023c5cc1a4bf3c067fbecbbb638273
+  languageName: node
+  linkType: hard
+
 "@prisma/prisma-fmt-wasm@npm:4.8.0-62.351fb726ff78e50c7d6db6331d66d4db0e378c53":
   version: 4.8.0-62.351fb726ff78e50c7d6db6331d66d4db0e378c53
   resolution: "@prisma/prisma-fmt-wasm@npm:4.8.0-62.351fb726ff78e50c7d6db6331d66d4db0e378c53"
@@ -583,6 +611,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: da244d14b069311afe0d800446e13ccc2f9e37492188cf632dffc5061fa662886a1eee8907f2c6e45643119dc574902fccf09a3d2b3385b858fdcda266ca4161
+  languageName: node
+  linkType: hard
+
+"@types/uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "@types/uuid@npm:9.0.0"
+  checksum: 59ae56d9547c8758588659da2a2b4c97cce79c2aae1798c892bb29452ef08e87859dea2ec3a66bfa88d0d2153147520be2b1893be920f9f0bc9c53a3207ea6aa
   languageName: node
   linkType: hard
 
@@ -1897,6 +1932,13 @@ __metadata:
   version: 0.1.2
   resolution: "globrex@npm:0.1.2"
   checksum: adca162494a176ce9ecf4dd232f7b802956bb1966b37f60c15e49d2e7d961b66c60826366dc2649093cad5a0d69970cfa8875bd1695b5a1a2f33dcd2aa88da3c
+  languageName: node
+  linkType: hard
+
+"gpt-3-encoder@npm:^1.1.4":
+  version: 1.1.4
+  resolution: "gpt-3-encoder@npm:1.1.4"
+  checksum: bfcbffa74272bd544015305ae42f4b2d2e138ffbed157d068cc4de5c5cb4e0c964d0ff6512218809a04d10484325eb5b5d2975edf36170b1f443cb43887356e8
   languageName: node
   linkType: hard
 
@@ -3295,6 +3337,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"prisma@npm:^4.10.1":
+  version: 4.10.1
+  resolution: "prisma@npm:4.10.1"
+  dependencies:
+    "@prisma/engines": 4.10.1
+  bin:
+    prisma: build/index.js
+    prisma2: build/index.js
+  checksum: e4078909ad07bcfbe19e10aa0822dca47622b099b4ad6f48da743d47a658e25662de757b5b0e3bbfcd04c0b346dfcfe4d1fa6f0486312dfd8b193b32795ed5ce
+  languageName: node
+  linkType: hard
+
 "promise-inflight@npm:^1.0.1":
   version: 1.0.1
   resolution: "promise-inflight@npm:1.0.1"
@@ -4286,6 +4340,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"uuid@npm:^9.0.0":
+  version: 9.0.0
+  resolution: "uuid@npm:9.0.0"
+  bin:
+    uuid: dist/bin/uuid
+  checksum: 8dd2c83c43ddc7e1c71e36b60aea40030a6505139af6bee0f382ebcd1a56f6cd3028f7f06ffb07f8cf6ced320b76aea275284b224b002b289f89fe89c389b028
+  languageName: node
+  linkType: hard
+
 "v8-compile-cache-lib@npm:^3.0.1":
   version: 3.0.1
   resolution: "v8-compile-cache-lib@npm:3.0.1"
@@ -4331,13 +4394,16 @@ __metadata:
     "@commitlint/config-conventional": 17.4.2
     "@discordx/importer": ^1.1.10
     "@discordx/pagination": ^3.4.0
+    "@prisma/client": ^4.10.1
     "@types/keyv": ^4.2.0
     "@types/node": ^18.13.0
     "@types/signale": ^1.4.4
+    "@types/uuid": ^9.0.0
     discord.js: ^14.7.1
     discordx: ^11.7.0
     dotenv: ^16.0.3
     eslint: ^8.33.0
+    gpt-3-encoder: ^1.1.4
     husky: ^8.0.3
     keyv: ^4.5.2
     lint-staged: 13.1.0
@@ -4347,10 +4413,12 @@ __metadata:
     prettier-plugin-prisma: 4.8.0
     prettier-plugin-properties: 0.2.0
     prettier-plugin-sh: 0.12.8
+    prisma: ^4.10.1
     signale: ^1.4.0
     ts-node: ^10.9.1
     turbo: ^1.7.0
     typescript: 4.9.5
+    uuid: ^9.0.0
   languageName: unknown
   linkType: soft
 

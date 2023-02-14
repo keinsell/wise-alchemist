@@ -1,0 +1,24 @@
+version: "3.7"
+services:
+  postgres:
+    container_name: wisealchemist-postgres
+    image: postgres:latest
+    ports:
+      - "${DATABASE_PORT}:5432"
+    volumes:
+      - "${PWD}/.cache/postgres:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_USER=${DATABASE_USER}
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DATABASE=${DATABASE_NAME}
+    mem_limit: 1024m
+    mem_reservation: 512M
+    cpus: 0.5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1024m
+        reservations:
+          cpus: "0.25"
+          memory: 512M
