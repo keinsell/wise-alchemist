@@ -22,7 +22,6 @@ export function splitMessage(message: string): string[] {
   const lines = message.split("\n");
   const messages: string[] = [];
   let currentMessage = "";
-  let currentCharCount = 0;
   let inCodeBlock = false;
 
   for (const line of lines) {
@@ -33,15 +32,27 @@ export function splitMessage(message: string): string[] {
         inCodeBlock = false;
       }
     } else if (line.startsWith("```")) {
+      const remaining = MAX_MESSAGE_LENGTH - currentMessage.length;
+      if (remaining < 3) {
+        // need at least 3 characters for a closing code block delimiter
+        messages.push(currentMessage);
+        currentMessage = "";
+      }
       inCodeBlock = true;
       currentMessage += line + "\n";
-    } else if (currentCharCount + lineLength > MAX_MESSAGE_LENGTH) {
+    } else if (currentMessage.length + lineLength > MAX_MESSAGE_LENGTH) {
+      // If the last line of the current message is part of a code block, remove it
+      if (inCodeBlock) {
+        const codeBlockRegex = /^```.*\n[\s\S]*```.*\n$/m;
+        const match = currentMessage.match(codeBlockRegex);
+        if (match) {
+          currentMessage = currentMessage.slice(0, match.index) + match[0];
+        }
+      }
       messages.push(currentMessage);
       currentMessage = line + "\n";
-      currentCharCount = lineLength;
     } else {
       currentMessage += line + "\n";
-      currentCharCount += lineLength;
     }
   }
 
