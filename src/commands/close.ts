@@ -11,10 +11,16 @@ export class Conversation {
   async close(interaction: CommandInteraction): Promise<void> {
     await interaction.deferReply();
 
-    await new ConversationService().closeConversationByChannel(
+    const closed = await new ConversationService().closeConversationByChannel(
       interaction.channelId
     );
 
-    await interaction.deleteReply();
+    if (!closed) {
+      interaction.editReply(`Conversation not found in current context`);
+    } else {
+      await interaction.editReply(
+        `Conversation ${closed.id} closed successfully.`
+      );
+    }
   }
 }
