@@ -27,7 +27,7 @@ export class ConversationService {
 
     if (!latest) return;
 
-    const closed = await prisma.conversation.update({
+    await prisma.conversation.update({
       where: {
         id: latest.id,
       },
@@ -35,7 +35,5 @@ export class ConversationService {
         isClosed: true,
       },
     });
-
-    return closed;
   }
 }
