@@ -43,8 +43,8 @@ export async function createMessage(properties: {
   // Create message content from the discord message
   const response = await engine.request(
     properties.messageContent,
-    parentMessageId,
-    properties.conversationId
+    parentMessageId
+    // properties.conversationId
   );
 
   if (!response) {
