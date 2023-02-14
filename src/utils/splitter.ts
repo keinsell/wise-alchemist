@@ -1,47 +1,33 @@
-class StringBuilder {
-  private buffer: string[] = [];
-  private length = 0;
-
-  append(segment: string) {
-    this.buffer.push(segment);
-    this.length += segment.length;
-  }
-
-  toString() {
-    return this.buffer.join("");
-  }
-
-  getLength() {
-    return this.length;
-  }
-}
+import MarkdownIt from "markdown-it";
 
 const MAX_MESSAGE_LENGTH = 2000;
 
 export function splitMessage(message: string): string[] {
-  const lines = message.split("\n");
+  const md = new MarkdownIt();
+  const tokens = md.parse(message, {});
+
   const messages: string[] = [];
   let currentMessage = "";
   let currentCharCount = 0;
-  let inCodeBlock = false;
 
-  for (const line of lines) {
-    const lineLength = line.length + 1; // add 1 for the newline character
-    if (inCodeBlock) {
-      currentMessage += line + "\n";
-      if (line.startsWith("```")) {
-        inCodeBlock = false;
-      }
-    } else if (line.startsWith("```")) {
-      inCodeBlock = true;
-      currentMessage += line + "\n";
-    } else if (currentCharCount + lineLength > MAX_MESSAGE_LENGTH) {
+  for (const token of tokens) {
+    const tokenString = md.renderer.render([token], md.options);
+    const tokenLength = tokenString.length;
+
+    if (currentCharCount + tokenLength > MAX_MESSAGE_LENGTH) {
       messages.push(currentMessage);
-      currentMessage = line + "\n";
-      currentCharCount = lineLength;
+      currentMessage = tokenString;
+      currentCharCount = tokenLength;
     } else {
-      currentMessage += line + "\n";
-      currentCharCount += lineLength;
+      currentMessage += tokenString;
+      currentCharCount += tokenLength;
+    }
+
+    if (token.type === "fence") {
+      // If the token is a code block, start a new message after the code block ends
+      messages.push(currentMessage);
+      currentMessage = "";
+      currentCharCount = 0;
     }
   }
 
