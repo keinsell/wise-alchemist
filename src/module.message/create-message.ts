@@ -30,6 +30,7 @@ export async function createMessage(properties: {
     await findLatestMessageInConversation(conversation.id);
 
   const recentOrNewMessageId = recentMessage?.id || uuidv4();
+  const thisMessageId = uuidv4();
 
   // Prepare engine
   const engine = new ChatGPTPlusScrapper(
@@ -44,7 +45,8 @@ export async function createMessage(properties: {
   // Create message content from the discord message
   const response = await engine.request(
     properties.messageContent,
-    recentOrNewMessageId
+    recentOrNewMessageId,
+    conversation.id
   );
 
   if (!response) {
@@ -62,7 +64,8 @@ export async function createMessage(properties: {
   // Save message
   const message = await prisma.message.create({
     data: {
-      id: recentOrNewMessageId,
+      id: thisMessageId,
+      parentMessageId: recentOrNewMessageId,
       discordUserId: properties.fromDiscordUserId,
       discordMessageId: properties.fromDiscordMessageId,
       input: properties.messageContent,
