@@ -6,7 +6,7 @@ import { ConversationService } from "../module.conversation/conversation.service
 export class Conversation {
   @Slash({
     description: "Manipulate conversation",
-    name: "conversation",
+    name: "close",
   })
   async close(interaction: CommandInteraction): Promise<void> {
     await interaction.deferReply();

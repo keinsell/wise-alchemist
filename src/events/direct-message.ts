@@ -44,7 +44,7 @@ export class OnDMMessageSent {
     while (await kv.get("is-working")) {
       await new Promise((resolve) => {
         message.channel.sendTyping();
-        setTimeout(resolve, 500);
+        setTimeout(resolve, 250);
       });
     }
 
