@@ -92,7 +92,12 @@ export class OnDMMessageSent {
       conversationId: conversationId,
     });
 
-    if (!ai_message) return;
+    if (!ai_message) {
+      await message.channel.send(
+        "I'm just an useless bot who sometimes like to knock your fucking server to the hell! :) (Love ya)"
+      );
+      return;
+    }
 
     // Stop typing.
     clearInterval(typingInterval);
