@@ -20,43 +20,34 @@ const MAX_MESSAGE_LENGTH = 2000;
 
 export function splitMessage(message: string): string[] {
   const lines = message.split("\n");
-  const result: string[] = [];
+  const messages: string[] = [];
+  let currentMessage = "";
+  let currentCharCount = 0;
+  let inCodeBlock = false;
 
-  let currentBlock: string[] = [];
-  let currentLength = 0;
-
-  for (const element of lines) {
-    const line = element;
-    const isCodeBlock = line.startsWith("```");
-    const lineLength = line.length + 1; // Add 1 for the newline character
-
-    if (isCodeBlock) {
-      // Flush the current block if it exceeds the character limit
-      if (
-        currentLength + lineLength > MAX_MESSAGE_LENGTH &&
-        currentBlock.length > 0
-      ) {
-        result.push(currentBlock.join("\n"));
-        currentBlock = [];
-        currentLength = 0;
+  for (const line of lines) {
+    const lineLength = line.length + 1; // add 1 for the newline character
+    if (inCodeBlock) {
+      currentMessage += line + "\n";
+      if (line.startsWith("```")) {
+        inCodeBlock = false;
       }
-    }
-
-    currentBlock.push(line);
-    currentLength += lineLength;
-
-    // Flush the current block if it exceeds the character limit
-    if (currentLength > MAX_MESSAGE_LENGTH) {
-      currentBlock.pop(); // Remove the last line that caused the overflow
-      currentLength -= lineLength;
-      result.push(currentBlock.join("\n"));
-      currentBlock = [line];
-      currentLength = lineLength;
+    } else if (line.startsWith("```")) {
+      inCodeBlock = true;
+      currentMessage += line + "\n";
+    } else if (currentCharCount + lineLength > MAX_MESSAGE_LENGTH) {
+      messages.push(currentMessage);
+      currentMessage = line + "\n";
+      currentCharCount = lineLength;
+    } else {
+      currentMessage += line + "\n";
+      currentCharCount += lineLength;
     }
   }
 
-  // Add the last block to the result
-  result.push(currentBlock.join("\n"));
+  if (currentMessage) {
+    messages.push(currentMessage);
+  }
 
-  return result;
+  return messages;
 }
