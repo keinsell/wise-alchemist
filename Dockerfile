@@ -17,6 +17,7 @@ COPY prisma prisma
 
 # Build project
 RUN yarn run build
+RUN yarn run db:generate
 
 ## production runner
 FROM node:lts-alpine as prod-runner
@@ -32,11 +33,13 @@ COPY --from=build-runner /tmp/app/prisma /app/prisma
 # Install dependencies
 RUN yarn install
 
+# Apply Prisma Migrations
+RUN yarn run db:generate
+
 # Move build files
 COPY --from=build-runner /tmp/app/build /app/build
 
-# Apply Prisma Migrations
-RUN npx prisma migrate deploy
+RUN yarn run yarn db:migrate:deploy
 
 # Start bot
 CMD [ "node", "./build/main.js" ]
