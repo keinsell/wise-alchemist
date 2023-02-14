@@ -96,7 +96,25 @@ export class OnDMMessageSent {
     // Stop typing.
     clearInterval(typingInterval);
 
-    const raw_text = ai_message.output;
-    await message.channel.send(raw_text);
+    const MAX_MESSAGE_LENGTH = 2000;
+
+    // Split the message by line breaks
+    const lines = ai_message.output.split("\n");
+
+    // Send each line as a separate message or concatenate them until they exceed the max length
+    let currentMessage = "";
+    for (const line of lines) {
+      if (currentMessage.length + line.length + 1 > MAX_MESSAGE_LENGTH) {
+        await message.channel.send(currentMessage);
+        currentMessage = line;
+      } else {
+        currentMessage += "\n" + line;
+      }
+    }
+
+    // Send any remaining message
+    if (currentMessage.length > 0) {
+      await message.channel.send(currentMessage);
+    }
   }
 }
