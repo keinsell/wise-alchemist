@@ -3,19 +3,15 @@ import { Discord, On } from "discordx";
 import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
 import { ChannelType, Message } from "discord.js";
-
-const mainscrapper = new ChatGPTPlusScrapper(
-  await kv.get("model"),
-  await kv.get("auth-token"),
-  await kv.get("cookies")
-);
-
-await kv.set("is-working", false);
-await kv.set("parent-message", mainscrapper.createUUID());
-await kv.set("conversation-id", undefined);
+import { ConversationService } from "../module.conversation/conversation.service.js";
+import { MessageService } from "../module.message/message.service.js";
+import { generateUUID } from "../utils/uuid.js";
 
 @Discord()
 export class OnMessageSent {
+  private conversationService = new ConversationService();
+  private messageService = new MessageService();
+
   @On({ event: "messageCreate" })
   async messageCreate(
     [message]: ArgsOf<"messageCreate">,
@@ -25,13 +21,6 @@ export class OnMessageSent {
     if (message.author.bot) return;
     // Check if message in on allowed "random" channel.
     if (message.channel.id !== "1074137070395740250") return;
-
-    // Proceed with chatting with users as GPT.
-    const scrapper = new ChatGPTPlusScrapper(
-      ChatgptModel.turbo,
-      await kv.get("auth-token"),
-      await kv.get("cookies")
-    );
 
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
@@ -49,57 +38,68 @@ export class OnMessageSent {
       message.channel.sendTyping();
     }, 1000);
 
+    // Find conversation or assigin undefined to conversation
+    let conversationId;
+
+    if (!conversationId) {
+      // Create conversation
+      const conversation =
+        await this.conversationService.findLatestConversationByChannel(
+          message.channel.id
+        );
+
+      if (conversation) {
+        conversationId = conversation?.id;
+      }
+    }
+
+    // Find parent message or assign undefined to parent message
+    let parentMessageId;
+
+    if (conversationId) {
+      // Find previous message
+      const previousMessage =
+        await this.conversationService.findLatestMessageInConversation(
+          conversationId
+        );
+
+      parentMessageId = previousMessage?.id || generateUUID();
+    }
+
     // Create message content from the discord message
-    const response = await scrapper.request(
-      message.content,
-      await kv.get("parent-message"),
-      await kv.get("conversation-id")
-    );
+    const ai_message = await this.messageService.send({
+      prompt: message.content,
+      discord_MessageId: message.id,
+      discord_ChannelId: message.channel.id,
+      discord_UserId: message.author.id,
+      parentMessageId: parentMessageId,
+      conversationId: conversationId,
+    });
 
-    if (!response) return;
-
-    // Set bot as free to chat again.
-    await kv.set("is-working", false);
-
-    // Save conversation id for next message.
-    await kv.set("conversation-id", response?.conversation_id);
-
-    // Set current message as parent message.
-    await kv.set("parent-message", response?.message.id);
+    if (!ai_message) return;
 
     // Stop typing.
     clearInterval(typingInterval);
 
-    // Loop over each response and send it
-    for (const part of response?.message.content.parts[0].split("\n")) {
-      if (part === "") continue;
+    const MAX_MESSAGE_LENGTH = 2000;
 
-      // If paragraph is longer than 2000 characters, split it into multiple paragraphs and send those
-      if (part.length > 2000) {
-        const remaining = part.length;
-        let previousMessageId = undefined;
+    // Split the message by line breaks
+    const lines = ai_message.output.split("\n");
 
-        for (let i = 0; i < remaining; i = i + 1000) {
-          const toSend = part.substring(i, i + 1000);
-          const sentMessage: Message = await message.channel.send({
-            content: toSend,
-            // If this is first message, set parent message.
-            // If this is not first message, set parent message to previous message id.
-            reply: previousMessageId
-              ? { messageReference: previousMessageId }
-              : undefined,
-          });
-
-          previousMessageId = sentMessage.id;
-        }
-
-        continue;
+    // Send each line as a separate message or concatenate them until they exceed the max length
+    let currentMessage = "";
+    for (const line of lines) {
+      if (currentMessage.length + line.length + 1 > MAX_MESSAGE_LENGTH) {
+        await message.reply(currentMessage);
+        currentMessage = line;
+      } else {
+        currentMessage += "\n" + line;
       }
+    }
 
-      // Send response to the discord channel.
-      message.reply({
-        content: part,
-      });
+    // Send any remaining message
+    if (currentMessage.length > 0) {
+      await message.reply(currentMessage);
     }
   }
 }
