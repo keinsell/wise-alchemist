@@ -1,7 +1,6 @@
 function splitMarkdownForDiscord(markdown: string): string[] {
   const MAX_LENGTH = 2000;
-  const marked = markdown.replace(/\n/g, "\r");
-  const paragraphs = marked.split(/\r\s*\r/g);
+  const paragraphs = markdown.split(/\n\s*\n/g);
   const chunks: string[] = [];
 
   let currentChunk = "";
@@ -57,14 +56,11 @@ function splitMarkdownForDiscord(markdown: string): string[] {
     }
   }
 
-  const result: string[] = [];
-
-  for (const chunk of chunks) {
-    const message = chunk.replace(/\r/g, "\n");
-    result.push(message);
+  if (currentLength > 0) {
+    chunks.push(currentChunk);
   }
 
-  return result;
+  return chunks;
 }
 
 export function splitMessage(message: string): string[] {
