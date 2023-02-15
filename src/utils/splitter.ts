@@ -28,9 +28,19 @@ export function splitMessage(message: string): string[] {
       const potentialLength =
         paragraphCharacters + lineLength + codeBlockCharacters;
 
+      // Search for ``` in the line and replace them with \`\`\`
+      const regex = /```/im;
+      if (line.search(regex) !== -1) {
+        const newLine = line.replace("```", `\`\`\``);
+        paragraph += newLine + "\n";
+      } else {
+        paragraph += line + "\n";
+      }
+
       if (potentialLength > MAXIMUM_MESSAGE_LENGTH) {
+        paragraph = paragraph + `\`\`\``;
         paragraphs.push(paragraph.trim());
-        paragraph = line + "\n";
+        paragraph = `\`\`\`` + line + "\n";
         paragraphCharacters = lineLength;
         codeBlockCharacters = 0;
       } else {
