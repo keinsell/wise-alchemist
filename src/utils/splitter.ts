@@ -1,4 +1,4 @@
-export function splitMessage(message: string): string[] {
+function splitMessage(message: string): string[] {
   const raw_lines = message.split("\n");
   const MAXIMUM_MESSAGE_LENGTH = 1500;
 
