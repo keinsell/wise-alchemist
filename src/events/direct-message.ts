@@ -8,7 +8,6 @@ import { MessageService } from "../module.message/message.service.js";
 import { randomUUID } from "crypto";
 import { generateUUID } from "../utils/uuid.js";
 import { splitMessage } from "../utils/splitter.js";
-import makdownPdf from "markdown-pdf";
 
 const mainscrapper = new ChatGPTPlusScrapper(
   await kv.get("model"),
@@ -102,12 +101,6 @@ export class OnDMMessageSent {
 
     // Stop typing.
     clearInterval(typingInterval);
-
-    if (ai_message.output.length > 2000) {
-      const pdf = await makdownPdf().from.string(ai_message.output).to.buffer();
-      await message.channel.send({ files: [{ attachment: pdf }] });
-      return;
-    }
 
     const parts = splitMessage(ai_message.output);
 
