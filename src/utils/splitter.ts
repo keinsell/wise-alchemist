@@ -6,7 +6,7 @@ function splitMarkdownForDiscord(markdown: string): string[] {
   let currentChunk = "";
   let currentLength = 0;
 
-  for (const paragraph of paragraphs) {
+  for (let paragraph of paragraphs) {
     const isCodeBlock = /```([\s\S]*?)```/.test(paragraph);
 
     if (isCodeBlock) {
