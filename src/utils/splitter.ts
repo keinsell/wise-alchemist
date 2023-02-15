@@ -1,6 +1,6 @@
 function splitMarkdownForDiscord(markdown: string): string[] {
   const MAX_LENGTH = 2000;
-  const paragraphs = markdown.split(/\n\s*\n/g);
+  const paragraphs = markdown.split(/\n{2,}/g);
   const chunks: string[] = [];
 
   let currentChunk = "";
