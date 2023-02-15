@@ -82,20 +82,20 @@ export class OnDMMessageSent {
       parentMessageId = previousMessage?.id || generateUUID();
     }
 
-    // Check if message have txt attachments, if so - read it and concat content to orignal message.
+    // Check if message has txt attachments, if so - read them and concatenate content to original message.
     if (
       message.attachments.some((attachment) =>
         attachment.name?.endsWith(".txt")
       )
     ) {
       message.content += "\n";
-
       for (const attachment of message.attachments) {
-        const file = (
-          await (await fetch(attachment[1].url)).arrayBuffer()
-        ).toString();
-
-        message.content += "\n\n" + file;
+        const file = await fetch(attachment[1].url).then((response) =>
+          response.arrayBuffer()
+        );
+        const decoder = new TextDecoder();
+        const content = decoder.decode(file);
+        message.content += "\n\n" + content;
       }
     }
 
