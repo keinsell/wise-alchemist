@@ -82,6 +82,23 @@ export class OnDMMessageSent {
       parentMessageId = previousMessage?.id || generateUUID();
     }
 
+    // Check if message have txt attachments, if so - read it and concat content to orignal message.
+    if (
+      message.attachments.some((attachment) =>
+        attachment.name?.endsWith(".txt")
+      )
+    ) {
+      message.content += "\n";
+
+      for (const attachment of message.attachments) {
+        const file = (
+          await (await fetch(attachment[1].url)).arrayBuffer()
+        ).toString();
+
+        message.content += "\n\n" + file;
+      }
+    }
+
     // Create message content from the discord message
     const ai_message = await this.messageService.send({
       prompt: message.content,
