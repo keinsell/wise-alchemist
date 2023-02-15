@@ -1,60 +1,68 @@
-function splitMarkdownString(input: string, limit: number): string[] {
-  const paragraphs = input.split("\n\n");
-  const output: string[] = [];
-  let currentString = "";
+function splitMarkdownForDiscord(markdown: string): string[] {
+  const MAX_LENGTH = 2000;
+  const paragraphs = markdown.split(/\n\s*\n/g);
+  const chunks: string[] = [];
 
-  for (let i = 0; i < paragraphs.length; i++) {
-    const paragraph = paragraphs[i];
+  let currentChunk = "";
+  let currentLength = 0;
 
-    if (currentString.length + paragraph.length <= limit) {
-      currentString += paragraph + "\n\n";
-    } else if (isCodeBlock(paragraph)) {
-      currentString += paragraph + "\n\n";
-    } else {
-      let splitIndex = findLastNewlineIndex(
-        paragraph,
-        limit - currentString.length
-      );
-      if (splitIndex === -1) {
-        output.push(currentString);
-        currentString = paragraph + "\n\n";
-      } else {
-        currentString += paragraph.slice(0, splitIndex) + "\n\n";
-        output.push(currentString);
-        currentString = paragraph.slice(splitIndex) + "\n\n";
+  for (const paragraph of paragraphs) {
+    const isCodeBlock = /```([\s\S]*?)```/.test(paragraph);
+
+    if (isCodeBlock) {
+      const codeBlock = paragraph.match(/```([\s\S]*?)```/)![0];
+      const codeBlockLength = codeBlock.length;
+
+      if (currentLength + codeBlockLength > MAX_LENGTH) {
+        chunks.push(currentChunk);
+        currentChunk = "";
+        currentLength = 0;
       }
+
+      currentChunk += codeBlock;
+      currentLength += codeBlockLength;
+
+      // Remove the code block from the paragraph before processing the rest of the text
+      paragraph.replace(/```([\s\S]*?)```/, "");
+    }
+
+    while (paragraph.length > 0) {
+      const remainingLength = MAX_LENGTH - currentLength;
+
+      if (paragraph.length <= remainingLength) {
+        currentChunk += paragraph;
+        currentLength += paragraph.length;
+        break;
+      }
+
+      const substring = paragraph.substring(0, remainingLength);
+      const lastNewlineIndex = substring.lastIndexOf("\n");
+
+      if (lastNewlineIndex === -1) {
+        chunks.push(currentChunk);
+        currentChunk = "";
+        currentLength = 0;
+        continue;
+      }
+
+      const chunk = paragraph.substring(0, lastNewlineIndex);
+      currentChunk += chunk;
+      currentLength += chunk.length;
+      chunks.push(currentChunk);
+      currentChunk = "";
+      currentLength = 0;
+
+      paragraph = paragraph.substring(lastNewlineIndex + 1);
     }
   }
 
-  if (currentString.length > 0) {
-    output.push(currentString);
+  if (currentLength > 0) {
+    chunks.push(currentChunk);
   }
 
-  return output;
+  return chunks;
 }
-
-function isCodeBlock(paragraph: string): boolean {
-  const codeBlockRegex = /^`{3}.+[\r\n]+([\s\S]*?)\r?\n`{3}$/gm;
-  const match = codeBlockRegex.exec(paragraph);
-  if (match === null) {
-    return false;
-  }
-  const codeBlock = match[1];
-  return !/\n/.test(codeBlock);
-}
-
-function findLastNewlineIndex(str: string, limit: number): number {
-  let splitIndex = -1;
-  for (let i = 0; i < Math.min(str.length, limit); i++) {
-    if (str[i] === "\n") {
-      splitIndex = i;
-    }
-  }
-  return splitIndex;
-}
-
-const MAX_MESSAGE_LENGTH = 2000;
 
 export function splitMessage(message: string): string[] {
-  return splitMarkdownString(message, MAX_MESSAGE_LENGTH);
+  return splitMarkdownForDiscord(message);
 }
