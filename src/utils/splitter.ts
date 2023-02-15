@@ -35,7 +35,12 @@ function splitMarkdownString(input: string, limit: number): string[] {
 
 function isCodeBlock(paragraph: string): boolean {
   const codeBlockRegex = /^`{3}.+[\r\n]+([\s\S]*?)\r?\n`{3}$/gm;
-  return codeBlockRegex.test(paragraph);
+  const match = codeBlockRegex.exec(paragraph);
+  if (match === null) {
+    return false;
+  }
+  const codeBlock = match[1];
+  return !/\n/.test(codeBlock);
 }
 
 function findLastNewlineIndex(str: string, limit: number): number {
