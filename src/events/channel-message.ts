@@ -81,6 +81,7 @@ export class OnMessageSent {
       await message.reply(
         "I'm just an useless bot who sometimes like to knock your fucking server to the hell! :) (Love ya)"
       );
+      clearInterval(typingInterval);
       return;
     }
 
