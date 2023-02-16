@@ -71,4 +71,14 @@ export class MessageService {
 
     return message;
   }
+
+  async linkBotMessageToMessage(
+    message: Message,
+    idOfMessageSent: string
+  ): Promise<Message> {
+    return await prisma.message.update({
+      where: { id: message.id },
+      data: { discordBotMessageIds: { push: idOfMessageSent } },
+    });
+  }
 }

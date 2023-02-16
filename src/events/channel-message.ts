@@ -91,7 +91,11 @@ export class OnMessageSent {
     const parts = splitMessage(ai_message.output);
 
     for await (const part of parts) {
-      await message.reply(part);
+      const sentMessage = await message.reply(part);
+      await this.messageService.linkBotMessageToMessage(
+        ai_message,
+        sentMessage.id
+      );
     }
   }
 }

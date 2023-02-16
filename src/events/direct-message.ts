@@ -123,7 +123,11 @@ export class OnDMMessageSent {
     const parts = splitMessage(ai_message.output);
 
     for await (const part of parts) {
-      await message.channel.send(part);
+      const sentMessage = await message.channel.send(part);
+      await this.messageService.linkBotMessageToMessage(
+        ai_message,
+        sentMessage.id
+      );
     }
   }
 }

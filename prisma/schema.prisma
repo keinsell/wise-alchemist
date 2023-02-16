@@ -20,15 +20,16 @@ model Conversation {
 }
 
 model Message {
-  id               String       @id @default(uuid())
-  timestamp        DateTime     @default(now())
-  parentMessageId  String?
-  conversationId   String
-  conversation     Conversation @relation(fields: [conversationId], references: [id])
-  discordMessageId String
-  discordUserId    String
-  input            String
-  output           String
-  model            String
-  tokensUsed       Int
+  id                   String       @id @default(uuid())
+  timestamp            DateTime     @default(now())
+  parentMessageId      String?
+  conversationId       String
+  conversation         Conversation @relation(fields: [conversationId], references: [id])
+  discordMessageId     String
+  discordUserId        String
+  discordBotMessageIds String[]
+  input                String
+  output               String
+  model                String
+  tokensUsed           Int
 }
