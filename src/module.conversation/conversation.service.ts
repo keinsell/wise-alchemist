@@ -56,4 +56,8 @@ export class ConversationService {
       },
     });
   }
+
+  async currenlyActiveConversations(): Promise<number> {
+    return await prisma.conversation.count({ where: { isClosed: false } });
+  }
 }
