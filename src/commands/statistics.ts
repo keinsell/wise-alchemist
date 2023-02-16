@@ -22,26 +22,4 @@ export class Statistics {
       `**GPT-J-6B Statistics**\nCurrently active conversations: ${currenlyActiveConversations}`
     );
   }
-
-  @Slash({
-    description: "Change a preffered model",
-    name: "model",
-  })
-  async model(
-    @SlashChoice(ChatgptModel.normal, ChatgptModel.turbo)
-    model: ChatgptModelType,
-    interaction: CommandInteraction
-  ): Promise<void> {
-    await interaction.deferReply();
-
-    // Find latest conversation on selected channel
-    // await this.conversationService.closeConversationByChannel(
-    //   interaction.channelId
-    // );
-
-    await kv.set("model", model);
-
-    interaction.ephemeral = true;
-    interaction.editReply(`Changed model to: ${model}`);
-  }
 }
