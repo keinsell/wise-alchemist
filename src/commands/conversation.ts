@@ -1,5 +1,5 @@
-import type { CommandInteraction } from "discord.js";
-import { Discord, Slash, SlashChoice } from "discordx";
+import { ApplicationCommandOptionType, CommandInteraction } from "discord.js";
+import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
 import { ConversationService } from "../module.conversation/conversation.service.js";
 import { ChatgptModel, ChatgptModelType } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
@@ -26,11 +26,17 @@ export class Conversation {
     name: "model",
   })
   async model(
-    @SlashChoice(ChatgptModel.normal, ChatgptModel.turbo)
+    @SlashOption({
+      description: "Model to use",
+      name: "model",
+      required: true,
+      type: ApplicationCommandOptionType.String,
+    })
+    @SlashChoice(...Object.values(ChatgptModel))
     model: ChatgptModelType,
     interaction: CommandInteraction
   ): Promise<void> {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     // Find latest conversation on selected channel
     // await this.conversationService.closeConversationByChannel(
@@ -39,7 +45,6 @@ export class Conversation {
 
     await kv.set("model", model);
 
-    interaction.ephemeral = true;
     interaction.editReply(`Changed model to: ${model}`);
   }
 }

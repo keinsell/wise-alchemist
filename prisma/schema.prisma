@@ -14,7 +14,9 @@ model Conversation {
   id        String    @id @default(uuid())
   timestamp DateTime  @default(now())
   channelId String
+  ownerId   String
   title     String?
+  model     String    @default("text-davinci-002-render-sha")
   isClosed  Boolean   @default(false)
   Message   Message[]
 }
