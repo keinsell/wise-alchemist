@@ -9,7 +9,7 @@ import { generateUUID } from "../utils/uuid.js";
 import { splitMessage } from "../utils/splitter.js";
 
 @Discord()
-export class OnMessageSent {
+export class OnMentionedOnChannelOrDM {
   private conversationService = new ConversationService();
   private messageService = new MessageService();
 
@@ -18,10 +18,14 @@ export class OnMessageSent {
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    // If message is made by bot, do not proceed further
-    if (message.author.bot) return;
-    // Check if message in on allowed "random" channel.
-    if (message.channel.id !== "1074137070395740250") return;
+    // Check usecases that bot can handle on this event.
+    const isMentionedOnChannel = message.mentions.has(client.user!.id);
+    const isMessageSentByBot = message.author.bot;
+
+    // Return if bot doesn't need to handle this event
+    if (!isMentionedOnChannel || isMessageSentByBot) {
+      return;
+    }
 
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
@@ -67,9 +71,16 @@ export class OnMessageSent {
       parentMessageId = previousMessage?.id || generateUUID();
     }
 
+    // Remove any mentions that are happening in the message. Then remove mentions of the bots.
+    // Take client.user.id to be putten into filter for removing mention.
+    // Mention starts with <@ or <@! and end with >.
+    const content = message.content
+      .replace(new RegExp(`<@!?${client.user!.id}>`, "gi"), "")
+      .trim();
+
     // Create message content from the discord message
     const ai_message = await this.messageService.send({
-      prompt: message.content,
+      prompt: content,
       discord_MessageId: message.id,
       discord_ChannelId: message.channel.id,
       discord_UserId: message.author.id,
