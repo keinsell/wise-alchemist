@@ -1,8 +1,8 @@
 import type { CommandInteraction } from "discord.js";
 import { ApplicationCommandOptionType } from "discord.js";
 import { Discord, Slash, SlashOption } from "discordx";
-import { ChatGPTPlusScrapper } from "../utils/scrapper.js";
-import { prisma } from "../infra.prisma/prisma.infra.js";
+import { ChatGPTPlusScrapper } from "../../../utils/scrapper.js";
+import { prisma } from "../../../infrastructure/prisma.infra.js";
 
 // Let's start the bot
 if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {

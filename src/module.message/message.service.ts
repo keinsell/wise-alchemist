@@ -1,10 +1,13 @@
 import { Message } from "@prisma/client";
 import { LlmService } from "../module.llm/llm.service.js";
 import { encode } from "gpt-3-encoder";
-import { prisma } from "../infra.prisma/prisma.infra.js";
+import { prisma } from "../infrastructure/prisma.infra.js";
 import signale from "signale";
 import { ChatGPTResponse } from "../utils/scrapper.js";
+import { PrismaService } from "../infrastructure/prisma/prisma.infra.js";
+import { inject, injectable } from "tsyringe";
 
+@injectable()
 export class MessageService {
   private llm = new LlmService();
   async send(properties: {

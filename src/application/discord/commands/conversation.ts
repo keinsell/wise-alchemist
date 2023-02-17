@@ -1,8 +1,8 @@
 import { ApplicationCommandOptionType, CommandInteraction } from "discord.js";
 import { Discord, Slash, SlashChoice, SlashOption } from "discordx";
-import { ConversationService } from "../module.conversation/conversation.service.js";
-import { ChatgptModel, ChatgptModelType } from "../utils/scrapper.js";
-import { kv } from "../utils/kv.js";
+import { ConversationService } from "../../../module.conversation/conversation.service.js";
+import { ChatgptModel, ChatgptModelType } from "../../../utils/scrapper.js";
+import { kv } from "../../../utils/kv.js";
 
 @Discord()
 export class Conversation {

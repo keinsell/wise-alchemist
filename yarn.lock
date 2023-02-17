@@ -2888,6 +2888,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"neverthrow@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "neverthrow@npm:6.0.0"
+  checksum: 2110457892947b0d5b1f019198fef335cfb42db98b83b3cd9ebcdf0405cf81f2cfc2fef51199daa86d4bb6269dee0ac1d328f3de5dfd6eeca23105a565f78d27
+  languageName: node
+  linkType: hard
+
 "node-gyp@npm:latest":
   version: 9.3.1
   resolution: "node-gyp@npm:9.3.1"
@@ -3460,6 +3467,13 @@ __metadata:
     indent-string: ^4.0.0
     strip-indent: ^3.0.0
   checksum: fa1ef20404a2d399235e83cc80bd55a956642e37dd197b4b612ba7327bf87fa32745aeb4a1634b2bab25467164ab4ed9c15be2c307923dd08b0fe7c52431ae6b
+  languageName: node
+  linkType: hard
+
+"reflect-metadata@npm:^0.1.13":
+  version: 0.1.13
+  resolution: "reflect-metadata@npm:0.1.13"
+  checksum: 798d379a7b6f6455501145419505c97dd11cbc23857a386add2b9ef15963ccf15a48d9d15507afe01d4cd74116df8a213247200bac00320bd7c11ddeaa5e8fb4
   languageName: node
   linkType: hard
 
@@ -4407,6 +4421,7 @@ __metadata:
     husky: ^8.0.3
     keyv: ^4.5.2
     lint-staged: 13.1.0
+    neverthrow: ^6.0.0
     nodemon: ^2.0.20
     prettier: ^2.8.4
     prettier-plugin-packagejson: 2.3.0
@@ -4414,8 +4429,10 @@ __metadata:
     prettier-plugin-properties: 0.2.0
     prettier-plugin-sh: 0.12.8
     prisma: ^4.10.1
+    reflect-metadata: ^0.1.13
     signale: ^1.4.0
     ts-node: ^10.9.1
+    tsyringe: ^4.7.0
     turbo: ^1.7.0
     typescript: 4.9.5
     uuid: ^9.0.0

@@ -1,5 +1,5 @@
 import { Conversation, Message } from "@prisma/client";
-import { prisma } from "../infra.prisma/prisma.infra.js";
+import { prisma } from "../infrastructure/prisma.infra.js";
 import { LlmService } from "../module.llm/llm.service.js";
 
 export class ConversationService {

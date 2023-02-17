@@ -29,7 +29,10 @@
     "dotenv": "^16.0.3",
     "gpt-3-encoder": "^1.1.4",
     "keyv": "^4.5.2",
+    "neverthrow": "^6.0.0",
+    "reflect-metadata": "^0.1.13",
     "signale": "^1.4.0",
+    "tsyringe": "^4.7.0",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

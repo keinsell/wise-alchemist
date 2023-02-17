@@ -1,26 +1,15 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
-import { kv } from "../utils/kv.js";
-import { ChannelType } from "discord.js";
-import { ConversationService } from "../module.conversation/conversation.service.js";
-import { MessageService } from "../module.message/message.service.js";
-import { randomUUID } from "crypto";
-import { generateUUID } from "../utils/uuid.js";
-import { splitMessage } from "../utils/splitter.js";
-
-const mainscrapper = new ChatGPTPlusScrapper(
-  await kv.get("model"),
-  await kv.get("auth-token"),
-  await kv.get("cookies")
-);
-
-await kv.set("is-working", false);
-await kv.set("parent-message", mainscrapper.createUUID());
-await kv.set("conversation-id", undefined);
+import { ChatGPTPlusScrapper, ChatgptModel } from "../../../utils/scrapper.js";
+import { kv } from "../../../utils/kv.js";
+import { ChannelType, Message } from "discord.js";
+import { ConversationService } from "../../../module.conversation/conversation.service.js";
+import { MessageService } from "../../../module.message/message.service.js";
+import { generateUUID } from "../../../utils/uuid.js";
+import { splitMessage } from "../../../utils/splitter.js";
 
 @Discord()
-export class OnDMMessageSent {
+export class OnMentionedOnChannelOrDM {
   private conversationService = new ConversationService();
   private messageService = new MessageService();
 
@@ -29,25 +18,25 @@ export class OnDMMessageSent {
     [message]: ArgsOf<"messageCreate">,
     client: Client
   ): Promise<void> {
-    // If message is made by bot, do not proceed further
-    if (message.author.bot) return;
-    if (message.channel.type !== ChannelType.DM) return;
+    // Check usecases that bot can handle on this event.
+    const isMentionedOnChannel = message.mentions.has(client.user!.id);
+    const isMessageSentByBot = message.author.bot;
 
-    const users = [
-      "906181062479204352",
-      "507954887502594058",
-      "596412668265627660",
-    ];
-
-    if (!users.includes(message.author.id)) return;
+    // Return if bot doesn't need to handle this event
+    if (!isMentionedOnChannel || isMessageSentByBot) {
+      return;
+    }
 
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
       await new Promise((resolve) => {
         message.channel.sendTyping();
-        setTimeout(resolve, 250);
+        setTimeout(resolve, 500);
       });
     }
+
+    // Set bot as working.
+    await kv.set("is-working", true);
 
     // Start typing.
     const typingInterval = setInterval(() => {
@@ -82,26 +71,16 @@ export class OnDMMessageSent {
       parentMessageId = previousMessage?.id || generateUUID();
     }
 
-    // Check if message has txt attachments, if so - read them and concatenate content to original message.
-    if (
-      message.attachments.some((attachment) =>
-        attachment.name?.endsWith(".txt")
-      )
-    ) {
-      message.content += "\n";
-      for (const attachment of message.attachments) {
-        const file = await fetch(attachment[1].url).then((response) =>
-          response.arrayBuffer()
-        );
-        const decoder = new TextDecoder();
-        const content = decoder.decode(file);
-        message.content += "\n\n" + content;
-      }
-    }
+    // Remove any mentions that are happening in the message. Then remove mentions of the bots.
+    // Take client.user.id to be putten into filter for removing mention.
+    // Mention starts with <@ or <@! and end with >.
+    const content = message.content
+      .replace(new RegExp(`<@!?${client.user!.id}>`, "gi"), "")
+      .trim();
 
     // Create message content from the discord message
     const ai_message = await this.messageService.send({
-      prompt: message.content,
+      prompt: content,
       discord_MessageId: message.id,
       discord_ChannelId: message.channel.id,
       discord_UserId: message.author.id,
@@ -110,7 +89,7 @@ export class OnDMMessageSent {
     });
 
     if (!ai_message) {
-      await message.channel.send(
+      await message.reply(
         "I'm just an useless bot who sometimes like to knock your fucking server to the hell! :) (Love ya)"
       );
       clearInterval(typingInterval);
@@ -123,7 +102,7 @@ export class OnDMMessageSent {
     const parts = splitMessage(ai_message.output);
 
     for await (const part of parts) {
-      const sentMessage = await message.channel.send(part);
+      const sentMessage = await message.reply(part);
       await this.messageService.linkBotMessageToMessage(
         ai_message,
         sentMessage.id
