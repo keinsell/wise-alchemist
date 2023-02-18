@@ -124,7 +124,7 @@ export class OnMessageCreated {
 
     const typingInterval = setInterval(async () => {
       const state = await prompt.getState();
-      if (state === "generating" || state === "pending") {
+      if (state === "generating") {
         const channel = message.channel as TextChannel;
         channel.sendTyping();
       } else {
