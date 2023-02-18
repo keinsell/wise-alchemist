@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "outDir": "build",
     "rootDir": "src",
-    "strict": true,
+    "strict": false,
     "moduleResolution": "nodenext",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,

@@ -10,28 +10,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id           String         @id @default(uuid())
+  discordId    String         @unique
+  Conversation Conversation[]
+  Prompt       Prompt[]
+}
+
 model Conversation {
   id        String    @id @default(uuid())
   timestamp DateTime  @default(now())
-  channelId String
-  ownerId   String
-  title     String?
-  model     String    @default("text-davinci-002-render-sha")
-  isClosed  Boolean   @default(false)
+  channelId String?
   Message   Message[]
+  Prompt    Prompt[]
+  Account   Account?  @relation(fields: [accountId], references: [id])
+  accountId String?
+  isClosed  Boolean   @default(false)
+}
+
+model Prompt {
+  id              Int           @id @unique @default(autoincrement())
+  timestamp       DateTime      @default(now())
+  accountId       String
+  account         Account       @relation(fields: [accountId], references: [id])
+  conversationId  String?
+  conversation    Conversation? @relation(fields: [conversationId], references: [id])
+  content         String
+  messageId       String
+  channelId       String
+  parentMessageId String?
+  Message         Message[]
 }
 
 model Message {
-  id                   String       @id @default(uuid())
-  timestamp            DateTime     @default(now())
-  parentMessageId      String?
-  conversationId       String
-  conversation         Conversation @relation(fields: [conversationId], references: [id])
-  discordMessageId     String
-  discordUserId        String
-  discordBotMessageIds String[]
-  input                String
-  output               String
-  model                String
-  tokensUsed           Int
+  id             String        @id @unique @default(uuid())
+  timestamp      DateTime      @default(now())
+  Conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?
+  content        String
+  tokensCount    Int
+  channelId      String?
+  prompt         Prompt        @relation(fields: [promptId], references: [id])
+  promptId       Int
 }
