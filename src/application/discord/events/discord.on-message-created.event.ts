@@ -1,6 +1,6 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { ChannelType } from "discord.js";
+import { ChannelType, TextChannel } from "discord.js";
 import { GetAccountByDiscordUsecase } from "../../../bounded-context/account/usecase/get-account-by-discord/get-account-by-discord.usercase.js";
 import { GetAccountByDiscordCommand } from "../../../bounded-context/account/usecase/get-account-by-discord/get-account-by-discord.command.js";
 import { GetConversationUsecase } from "../../../bounded-context/conversation/usecases/get-conversation/get-conversation.usecase.js";
@@ -94,8 +94,6 @@ export class OnMessageCreated {
         message.channel.id
       );
 
-    console.log({ conversation });
-
     if (conversation) {
       conversationId = conversation.id;
 
@@ -127,7 +125,8 @@ export class OnMessageCreated {
     const typingInterval = setInterval(async () => {
       const state = await prompt.getState();
       if (state === "generating" || state === "pending") {
-        message.channel.sendTyping();
+        const channel = message.channel as TextChannel;
+        channel.sendTyping();
       } else {
         clearInterval(typingInterval);
       }

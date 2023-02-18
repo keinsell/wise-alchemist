@@ -6,7 +6,7 @@ import { MessageGeneratedEvent } from "../events/message-generated.event.js";
 import { MessageEntity } from "../message.entity.js";
 import { PromptNotFound } from "../../prompt/errors/prompt-not-found.error.js";
 import { PromptEntity } from "../../prompt/prompt.entity.js";
-import { IntentsBitField, Partials } from "discord.js";
+import { IntentsBitField, Partials, TextChannel } from "discord.js";
 import { Client } from "discordx";
 import { DiscordBot } from "../../../application/discord/main.js";
 
@@ -38,7 +38,9 @@ export class MessageGeneratedEventHandler
 
     const messageEntity = MessageEntity.fromSnapshot(message);
 
-    const channel = await DiscordBot.channels.fetch(message.channelId as any);
+    const channel = (await DiscordBot.channels.fetch(
+      message.channelId as any
+    )) as TextChannel;
 
     if (!channel) return;
     if (!channel.isTextBased()) return;
