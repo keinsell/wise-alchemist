@@ -31,14 +31,9 @@ export class GenerationJobQueue extends JobQueue<{ promptId: any }> {
 
     const promptx = PromptEntity.fromSnapshot(prompt);
 
-    try {
-      await this.chatgpt.prompt(promptx, {
-        conversationId: prompt.conversationId || undefined,
-        parentMessageId: prompt.parentMessageId || undefined,
-      });
-    } catch (error) {
-      // Check if job has tried to execute 3 times and if it's less add it back to queue
-      return job.retry();
-    }
+    await this.chatgpt.prompt(promptx, {
+      conversationId: prompt.conversationId || undefined,
+      parentMessageId: prompt.parentMessageId || undefined,
+    });
   }
 }

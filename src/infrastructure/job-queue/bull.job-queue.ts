@@ -22,8 +22,11 @@ export abstract class JobQueue<T> {
       job.moveToCompleted();
     } catch (error) {
       console.error(error);
-
-      job.moveToFailed({ message: JSON.stringify(error) });
+      if (job.attemptsMade > 3) {
+        job.retry();
+      } else {
+        job.moveToFailed({ message: JSON.stringify(error) });
+      }
     }
   }
 }
