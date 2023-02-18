@@ -2,7 +2,7 @@ import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
 import { ChatGPTPlusScrapper, ChatgptModel } from "../utils/scrapper.js";
 import { kv } from "../utils/kv.js";
-import { ChannelType, Message } from "discord.js";
+import { ChannelType, Message, TextChannel } from "discord.js";
 import { ConversationService } from "../module.conversation/conversation.service.js";
 import { MessageService } from "../module.message/message.service.js";
 import { generateUUID } from "../utils/uuid.js";
@@ -30,7 +30,8 @@ export class OnMentionedOnChannelOrDM {
     // If bot is working, check again every 5 seconds until it is free.
     while (await kv.get("is-working")) {
       await new Promise((resolve) => {
-        message.channel.sendTyping();
+        const channel = message.channel as TextChannel;
+        channel.sendTyping();
         setTimeout(resolve, 500);
       });
     }
@@ -40,7 +41,8 @@ export class OnMentionedOnChannelOrDM {
 
     // Start typing.
     const typingInterval = setInterval(() => {
-      message.channel.sendTyping();
+      const channel = message.channel as TextChannel;
+      channel.sendTyping();
     }, 1000);
 
     // Find conversation or assigin undefined to conversation
