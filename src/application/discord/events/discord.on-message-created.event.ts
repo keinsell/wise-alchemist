@@ -1,14 +1,9 @@
 import type { ArgsOf, Client } from "discordx";
 import { Discord, On } from "discordx";
-import { generateUUID } from "../../../utils/uuid.js";
-import { splitMessage } from "../../../utils/splitter.js";
 import { ChannelType } from "discord.js";
 import { GetAccountByDiscordUsecase } from "../../../bounded-context/account/usecase/get-account-by-discord/get-account-by-discord.usercase.js";
-import { PrismaService } from "../../../infrastructure/prisma/prisma.infra.js";
 import { GetAccountByDiscordCommand } from "../../../bounded-context/account/usecase/get-account-by-discord/get-account-by-discord.command.js";
 import { GetConversationUsecase } from "../../../bounded-context/conversation/usecases/get-conversation/get-conversation.usecase.js";
-import { GetConversationCommand } from "../../../bounded-context/conversation/usecases/get-conversation/get-conversation.command.js";
-import { kv } from "../../../utils/kv.js";
 import signale from "signale";
 import { CreatePromptUsecase } from "../../../bounded-context/prompt/usecases/create-prompt/create-prompt.usecase.js";
 import { CreatePromptCommand } from "../../../bounded-context/prompt/usecases/create-prompt/create-prompt.command.js";
@@ -42,8 +37,6 @@ export class OnMessageCreated {
       message.author.id
     );
 
-    let content = message.content;
-
     if (isMessageSentByBot) {
       return;
     }
@@ -55,7 +48,7 @@ export class OnMessageCreated {
     }
 
     // Remove mention tag from message content.
-    content = message.content
+    message.content = message.content
       .replace(new RegExp(`<@!?${client.user!.id}>`, "gi"), "")
       .trim();
 
@@ -71,14 +64,14 @@ export class OnMessageCreated {
         attachment.name?.endsWith(".txt")
       )
     ) {
-      content += "\n";
+      message.content += "\n";
       for (const attachment of message.attachments) {
         const file = await fetch(attachment[1].url).then((response) =>
           response.arrayBuffer()
         );
         const decoder = new TextDecoder();
         const contentx = decoder.decode(file);
-        content += "\n\n" + contentx;
+        message.content += "\n\n" + contentx;
       }
     }
 
@@ -123,7 +116,7 @@ export class OnMessageCreated {
         accountId: account.getSnapshot().id,
         conversationId: conversationId,
         parentMessageId: parentMessageId,
-        content: content,
+        content: message.content,
         channelId: message.channel.id,
         messageId: message.id,
       })
