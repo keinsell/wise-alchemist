@@ -2,11 +2,10 @@ import { Conversation } from "@prisma/client";
 import { Entity } from "../../shared/domain/entity.shared.js";
 
 export class ConversationEntity extends Entity<Conversation> {
-  static fromPrisma(prismaConversation: Conversation): ConversationEntity {
-    return new ConversationEntity(prismaConversation);
+  get id(): any {
+    return this.properties.id;
   }
-
-  toPrisma(): Conversation {
-    return this.properties;
+  static fromSnapshot(prop: Conversation): ConversationEntity {
+    return new ConversationEntity(prop);
   }
 }

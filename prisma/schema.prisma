@@ -10,88 +10,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum ExternalNetwork {
-  DISCORD
-  TELEGRAM
-  WHATSAPP
-}
-
 model Account {
-  id                 String            @id @default(uuid())
-  model              String            @default("text-davinci-002")
-  profileConnections ExternalAccount[]
-  Conversation       Conversation[]
-}
-
-model ExternalAccount {
-  id              String          @id @default(uuid())
-  accountId       String          @unique
-  network         ExternalNetwork
-  networkUsername String?
-  networkAvatar   String?
-  User            Account         @relation(fields: [accountId], references: [id])
+  id           String         @id @default(uuid())
+  discordId    String         @unique
+  Conversation Conversation[]
+  Prompt       Prompt[]
 }
 
 model Conversation {
-  id                   String               @id @default(uuid())
-  timestamp            DateTime             @default(now())
-  accountId            String
-  account              Account              @relation(fields: [accountId], references: [id])
-  externalId           String
-  externalConversation ExternalConversation @relation(fields: [externalId], references: [id])
-  Message              Thread[]
-}
-
-model ExternalConversation {
-  id           String          @id @default(uuid())
-  network      ExternalNetwork
-  chatId       String
-  Conversation Conversation[]
-}
-
-model Thread {
-  id             String       @id @default(uuid())
-  timestamp      DateTime     @default(now())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  meessage       Message[]
+  id        String    @id @default(uuid())
+  timestamp DateTime  @default(now())
+  channelId String?
+  Message   Message[]
+  Prompt    Prompt[]
+  Account   Account?  @relation(fields: [accountId], references: [id])
+  accountId String?
+  isClosed  Boolean   @default(false)
 }
 
 model Prompt {
-  id          Int       @id @default(autoincrement())
-  content     String
-  tokensCount Int
-  Message     Message[]
-}
-
-model Generation {
-  id              Int       @id @default(autoincrement())
-  generationId    String
-  parentMessageId String
-  content         String
-  tokensCount     Int
-  messages        Message[]
+  id             Int           @id @unique @default(autoincrement())
+  timestamp      DateTime      @default(now())
+  accountId      String
+  account        Account       @relation(fields: [accountId], references: [id])
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  content        String
+  messageId      String
+  channelId      String
+  Message        Message[]
 }
 
 model Message {
-  id                String          @id @default(uuid())
-  externalMessageId String
-  externalMessage   ExternalMessage @relation(fields: [externalMessageId], references: [id])
-  Thread            Thread?         @relation(fields: [threadId], references: [id])
-  threadId          String?
-  Generation        Generation?     @relation(fields: [generationId], references: [id])
-  generationId      Int?
-  promptId          Int?
-  Prompt            Prompt?         @relation(fields: [promptId], references: [id])
-}
-
-model ExternalMessage {
-  id        String          @id @default(uuid())
-  network   ExternalNetwork
-  chatId    String
-  authorId  String
-  messageId String
-  content   String
-  seen      Boolean?        @default(false)
-  Message   Message[]
+  id             String        @id @unique @default(uuid())
+  timestamp      DateTime      @default(now())
+  Conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  conversationId String?
+  content        String
+  tokensCount    Int
+  channelId      String?
+  prompt         Prompt        @relation(fields: [promptId], references: [id])
+  promptId       Int
 }

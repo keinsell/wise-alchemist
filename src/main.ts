@@ -1,9 +1,13 @@
 import "reflect-metadata";
 import signale from "signale";
-import { kv } from "./utils/kv.js";
-import { ChatgptModel } from "./utils/scrapper.js";
 import { discordService } from "./application/discord/main.js";
 import { config } from "dotenv";
+import Container from "typedi";
+import { container } from "tsyringe";
+import { CreatePromptUsecase } from "./bounded-context/prompt/usecases/create-prompt/create-prompt.usecase.js";
+import { PrismaService } from "./infrastructure/prisma/prisma.infra.js";
+import { GetConversationUsecase } from "./bounded-context/conversation/usecases/get-conversation/get-conversation.usecase.js";
+import { PromptCreatedEventHandler } from "./bounded-context/prompt/subscribers/prompt-created.subscriber.js";
 
 config();
 
@@ -14,9 +18,21 @@ if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
   process.exit(1);
 }
 
-await kv.set("auth-token", process.env.CHATGPT_AUTH_TOKEN);
-await kv.set("cookies", process.env.CHATGPT_COOKIES);
-await kv.set("model", ChatgptModel.turbo);
-await kv.set("is-working", false);
+container.registerSingleton<PrismaService>(PrismaService, PrismaService);
+
+container.register<CreatePromptUsecase>(
+  CreatePromptUsecase,
+  CreatePromptUsecase
+);
+
+container.register<GetConversationUsecase>(
+  GetConversationUsecase,
+  GetConversationUsecase
+);
+
+container.register<PromptCreatedEventHandler>(
+  PromptCreatedEventHandler,
+  PromptCreatedEventHandler
+);
 
 await discordService();
