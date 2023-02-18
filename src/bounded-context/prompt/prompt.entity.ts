@@ -23,6 +23,7 @@ export class PromptEntity extends Entity<Prompt> {
       id: this.properties.id,
       content: this.properties.content,
       conversationId: this.properties.conversationId || undefined,
+      parentMessageId: this.properties.parentMessageId || undefined,
     });
 
     this.eventBus.publish(event);
@@ -40,7 +41,11 @@ export class PromptEntity extends Entity<Prompt> {
     await this.kvStore.set("prompt-" + this.id, "completed");
   }
 
-  async getState(): Promise<"pending" | "generating" | "completed"> {
+  async setFailedState() {
+    await this.kvStore.set("prompt-" + this.id, "failed");
+  }
+
+  async getState(): Promise<"pending" | "generating" | "completed" | "failed"> {
     const status = await this.kvStore.get<
       "pending" | "generating" | "completed"
     >("prompt-" + this.id);

@@ -2,6 +2,7 @@ import { Message } from "@prisma/client";
 import { Entity } from "../../shared/domain/entity.shared.js";
 import { MessageGeneratedEvent } from "./events/message-generated.event.js";
 import { GlobalEventBus } from "../../infrastructure/event-bus/memory.event-bus.infra.js";
+import { splitMessage } from "../../utils/splitter.js";
 
 export class MessageEntity extends Entity<Message> {
   private eventbus = GlobalEventBus;
@@ -33,6 +34,10 @@ export class MessageEntity extends Entity<Message> {
     });
 
     this.eventbus.publish(event);
+  }
+
+  toDeliverableChunks() {
+    return splitMessage(this.content);
   }
 
   static fromSnapshot(snapshot: Message) {

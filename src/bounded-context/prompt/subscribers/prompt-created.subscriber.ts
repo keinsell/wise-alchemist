@@ -20,18 +20,7 @@ export class PromptCreatedEventHandler
 
   @On("prompt-created")
   async handle(event: PromptCreatedEvent): Promise<void> {
-    const prompt = await this.prismaService.prompt.findUnique({
-      where: { id: event.payload.id },
-    });
-
-    if (!prompt) {
-      throw new PromptNotFound();
-    }
-
-    await PromptEntity.fromSnapshot(prompt).setPendingState();
-
     await this.generationQueue.addJob({ promptId: event.payload.id });
-
     signale.info(`Added prompt ${event.payload.id} to queue.`);
   }
 }

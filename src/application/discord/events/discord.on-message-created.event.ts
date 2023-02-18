@@ -13,6 +13,8 @@ import signale from "signale";
 import { CreatePromptUsecase } from "../../../bounded-context/prompt/usecases/create-prompt/create-prompt.usecase.js";
 import { CreatePromptCommand } from "../../../bounded-context/prompt/usecases/create-prompt/create-prompt.command.js";
 import { injectable } from "tsyringe";
+import { ConversationRepsotitory } from "../../../bounded-context/conversation/conversation.repository.js";
+import { MessageRepository } from "../../../bounded-context/message/message.repository.js";
 
 @Discord()
 @injectable()
@@ -20,7 +22,9 @@ export class OnMessageCreated {
   constructor(
     private readonly getUser: GetAccountByDiscordUsecase,
     private readonly getConversation: GetConversationUsecase,
-    private readonly createPrompt: CreatePromptUsecase
+    private readonly createPrompt: CreatePromptUsecase,
+    private readonly conversationRepository: ConversationRepsotitory,
+    private readonly messageRepository: MessageRepository
   ) {}
 
   @On({ event: "messageCreate" })
@@ -38,9 +42,22 @@ export class OnMessageCreated {
       message.author.id
     );
 
+    let content = message.content;
+
     if (isMessageSentByBot) {
       return;
     }
+
+    if (isNotMentionedOnChannel) {
+      if (!isDirectMessage) {
+        return;
+      }
+    }
+
+    // Remove mention tag from message content.
+    content = message.content
+      .replace(new RegExp(`<@!?${client.user!.id}>`, "gi"), "")
+      .trim();
 
     // TODO: Check if account is blacklisted.
     // TODO: Check if channel is blacklisted.
@@ -54,18 +71,19 @@ export class OnMessageCreated {
         attachment.name?.endsWith(".txt")
       )
     ) {
-      message.content += "\n";
+      content += "\n";
       for (const attachment of message.attachments) {
         const file = await fetch(attachment[1].url).then((response) =>
           response.arrayBuffer()
         );
         const decoder = new TextDecoder();
-        const content = decoder.decode(file);
-        message.content += "\n\n" + content;
+        const contentx = decoder.decode(file);
+        content += "\n\n" + contentx;
       }
     }
 
     // Find account for user who posted message.
+
     const accountResult = await this.getUser.execute(
       new GetAccountByDiscordCommand({ discordUserId: message.author.id })
     );
@@ -73,27 +91,39 @@ export class OnMessageCreated {
     if (accountResult.isErr()) return;
     const account = accountResult._unsafeUnwrap();
 
-    // TODO: Find conversation for channel where message was posted.
+    // Find latest open conversation in selected Channel.
+
     let conversationId: string | undefined = undefined;
+    let parentMessageId: string | undefined = undefined;
 
-    const conversationResult = await this.getConversation.execute(
-      new GetConversationCommand({
-        channelId: message.channel.id,
-      })
-    );
+    const conversation =
+      await this.conversationRepository.findLatestConversationByChannelId(
+        message.channel.id
+      );
 
-    const conversation = conversationResult._unsafeUnwrap();
+    console.log({ conversation });
 
     if (conversation) {
       conversationId = conversation.id;
+
+      // Find latest message generated in specific conversation.
+      const latestMessage =
+        await this.messageRepository.findLatestMessageByConverationId(
+          conversationId
+        );
+
+      if (latestMessage) {
+        parentMessageId = latestMessage.id;
+      }
     }
 
-    // TODO: Create prompt for account and conversation.
+    // Find latest message generated in specific conversation.
     const promptResult = await this.createPrompt.execute(
       new CreatePromptCommand({
         accountId: account.getSnapshot().id,
         conversationId: conversationId,
-        content: message.content,
+        parentMessageId: parentMessageId,
+        content: content,
         channelId: message.channel.id,
         messageId: message.id,
       })
@@ -103,7 +133,6 @@ export class OnMessageCreated {
 
     const typingInterval = setInterval(async () => {
       const state = await prompt.getState();
-      signale.info(`State for ${prompt.getSnapshot().id}: ${state}`);
       if (state === "generating" || state === "pending") {
         message.channel.sendTyping();
       } else {

@@ -31,6 +31,9 @@ export class GenerationJobQueue extends JobQueue<{ promptId: any }> {
 
     const promptx = PromptEntity.fromSnapshot(prompt);
 
-    await this.chatgpt.prompt(promptx);
+    await this.chatgpt.prompt(promptx, {
+      conversationId: prompt.conversationId || undefined,
+      parentMessageId: prompt.parentMessageId || undefined,
+    });
   }
 }

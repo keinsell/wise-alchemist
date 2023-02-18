@@ -4,6 +4,7 @@ export class CreatePromptCommand extends Command<{
   accountId: string;
   messageId: string;
   channelId: string;
-  conversationId?: string;
   content: string;
+  parentMessageId?: string;
+  conversationId?: string;
 }> {}

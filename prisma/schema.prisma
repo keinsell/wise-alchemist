@@ -29,16 +29,17 @@ model Conversation {
 }
 
 model Prompt {
-  id             Int           @id @unique @default(autoincrement())
-  timestamp      DateTime      @default(now())
-  accountId      String
-  account        Account       @relation(fields: [accountId], references: [id])
-  conversationId String?
-  conversation   Conversation? @relation(fields: [conversationId], references: [id])
-  content        String
-  messageId      String
-  channelId      String
-  Message        Message[]
+  id              Int           @id @unique @default(autoincrement())
+  timestamp       DateTime      @default(now())
+  accountId       String
+  account         Account       @relation(fields: [accountId], references: [id])
+  conversationId  String?
+  conversation    Conversation? @relation(fields: [conversationId], references: [id])
+  content         String
+  messageId       String
+  channelId       String
+  parentMessageId String?
+  Message         Message[]
 }
 
 model Message {

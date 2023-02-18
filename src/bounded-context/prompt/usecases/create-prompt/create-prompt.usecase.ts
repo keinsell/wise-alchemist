@@ -17,6 +17,7 @@ export class CreatePromptUsecase
       account: { connect: { id: input.payload.accountId } },
       messageId: input.payload.messageId,
       channelId: input.payload.channelId,
+      parentMessageId: input.payload.parentMessageId,
     };
 
     if (input.payload.conversationId) {

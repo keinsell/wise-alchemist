@@ -43,6 +43,10 @@ export class MessageGeneratedEventHandler
     if (!channel) return;
     if (!channel.isTextBased()) return;
 
-    await channel.send(messageEntity.content);
+    const chunks = messageEntity.toDeliverableChunks();
+
+    for (const chunk of chunks) {
+      await channel.send(chunk);
+    }
   }
 }

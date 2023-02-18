@@ -85,6 +85,7 @@ export class ChatgptArtifictialIntelligenceProvider
         }
       );
     } catch (error) {
+      prompt.setFailedState();
       throw new InvalidChatgptResponse(JSON.stringify(error));
     }
 
@@ -103,6 +104,7 @@ export class ChatgptArtifictialIntelligenceProvider
 
     if (result.length == 1) {
       const parsed = JSON.parse(result[0]) as { detail: string };
+      prompt.setFailedState();
       throw new InvalidChatgptResponse(parsed.detail);
     }
 
@@ -133,6 +135,7 @@ export class ChatgptArtifictialIntelligenceProvider
             },
             create: {
               id: parsedResponse.conversation_id,
+              channelId: prompt.channelId,
             },
           },
         },

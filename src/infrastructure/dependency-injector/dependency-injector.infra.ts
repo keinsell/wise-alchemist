@@ -9,6 +9,8 @@ import { container } from "tsyringe";
 import { GenerationJobQueue } from "../../bounded-context/message/infrastructure/message.job-queue.js";
 import { OnMessageCreated } from "../../application/discord/events/discord.on-message-created.event.js";
 import { GlobalEventBus } from "../event-bus/memory.event-bus.infra.js";
+import { ConversationRepsotitory } from "../../bounded-context/conversation/conversation.repository.js";
+import { MessageRepository } from "../../bounded-context/message/message.repository.js";
 
 export class DependencyInjector {
   static init() {
@@ -17,6 +19,20 @@ export class DependencyInjector {
     // --------------------------------
 
     container.registerSingleton<PrismaService>(PrismaService, PrismaService);
+
+    // --------------------------------
+    // Repositories
+    // --------------------------------
+
+    container.registerInstance(
+      ConversationRepsotitory,
+      new ConversationRepsotitory(container.resolve(PrismaService))
+    );
+
+    container.registerInstance(
+      MessageRepository,
+      new MessageRepository(container.resolve(PrismaService))
+    );
 
     // --------------------------------
     // Providers
@@ -96,7 +112,9 @@ export class DependencyInjector {
       new OnMessageCreated(
         container.resolve(GetAccountByDiscordUsecase),
         container.resolve(GetConversationUsecase),
-        container.resolve(CreatePromptUsecase)
+        container.resolve(CreatePromptUsecase),
+        container.resolve(ConversationRepsotitory),
+        container.resolve(MessageRepository)
       )
     );
 
