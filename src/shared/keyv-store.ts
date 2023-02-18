@@ -4,7 +4,7 @@ export class KeyvStore {
   private readonly store: Keyv;
 
   constructor() {
-    this.store = new Keyv("redis://localhost:6379");
+    this.store = new Keyv(process.env.REDIS_URL!);
 
     this.store.on("error", (error) => console.error(`Keyv error: ${error}`));
   }

@@ -14,7 +14,7 @@ export class GenerationJobQueue extends JobQueue<{ promptId: any }> {
     private prismaService: PrismaService,
     private chatgpt: ChatgptArtifictialIntelligenceProvider
   ) {
-    super("generation", "redis://localhost:6379");
+    super("generation", process.env.REDIS_URL!);
   }
   protected async handleJob(job: Job<{ promptId: any }>): Promise<void> {
     signale.info(
