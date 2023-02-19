@@ -6,6 +6,7 @@ import {
   addDiscordMessageAsPromptToQueue,
   findLatestMessageInConversation,
 } from "../messages.js";
+import { keyv } from "../infrastructure/keyv.infra.js";
 
 @Discord()
 export class OnMessage {
@@ -19,6 +20,9 @@ export class OnMessage {
     const isNotMentionedOnChannel = !message.mentions.has(client.user!.id);
     const isMessageSentByBot = message.author.bot;
     const isDirectMessage = message.channel.type === ChannelType.DM;
+    const isWatchedChannel = (await keyv.get(
+      "watch-" + message.channelId
+    )) as boolean;
 
     if (isMessageSentByBot) {
       return;
@@ -26,7 +30,9 @@ export class OnMessage {
 
     if (isNotMentionedOnChannel) {
       if (!isDirectMessage) {
-        return;
+        if (!isWatchedChannel) {
+          return;
+        }
       }
     }
 

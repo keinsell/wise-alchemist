@@ -2,6 +2,8 @@ import type { CommandInteraction } from "discord.js";
 import { Discord, Slash, SlashChoice } from "discordx";
 import { closeConversationByChannel } from "../conversations.js";
 import { ChatgptModel } from "../llm.js";
+import { keyv } from "../infrastructure/keyv.infra.js";
+import ms from "ms";
 
 @Discord()
 export class Conversation {
@@ -10,11 +12,11 @@ export class Conversation {
     name: "close",
   })
   async close(interaction: CommandInteraction): Promise<void> {
-    await interaction.deferReply();
+    await interaction.deferReply({ ephemeral: true });
 
     await closeConversationByChannel(interaction.channelId);
 
-    await interaction.deleteReply();
+    await interaction.editReply("Conversation has been closed !");
   }
 
   @Slash({
@@ -35,5 +37,29 @@ export class Conversation {
 
     interaction.ephemeral = true;
     interaction.editReply(`Changed model to: ${model}`);
+  }
+
+  @Slash({
+    description: "Come and be active on this channel for a while",
+    name: "come",
+  })
+  async stay(interaction: CommandInteraction): Promise<void> {
+    await interaction.deferReply();
+
+    await keyv.set(`watch-${interaction.channelId}`, ms("10m"));
+
+    interaction.editReply(`I'll stay`);
+  }
+
+  @Slash({
+    description: "Exit the conversation and stop replying to every message",
+    name: "exit",
+  })
+  async out(interaction: CommandInteraction): Promise<void> {
+    await interaction.deferReply();
+
+    await keyv.set(`watch-${interaction.channelId}`, false);
+
+    interaction.editReply(`I'll go`);
   }
 }
