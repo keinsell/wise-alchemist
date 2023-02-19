@@ -5,6 +5,13 @@ import { prisma } from "./infrastructure/prisma.infra.js";
 import { encode } from "gpt-3-encoder";
 import { discord } from "./infrastructure/discord.infra.js";
 import { DMChannel, TextChannel } from "discord.js";
+import { splitMessage } from "./utils/message-splitting.js";
+import {
+  DISCORD_TYPING_INTERVAL,
+  sendMessageOnChannelId,
+  startTypingOnChannelId,
+  stopTypingOnChannelId,
+} from "./utils/discord-utils.js";
 
 interface LlmQueuePayload {
   messageContent: string;
@@ -43,6 +50,11 @@ llmQueue.process(async function (
     | (ChatgptResponse & { parentMesasageId: string })
     | undefined = undefined;
 
+  // Start typing.
+  const typingInterval = setInterval(() => {
+    startTypingOnChannelId(job.data.discordChannelId);
+  }, DISCORD_TYPING_INTERVAL);
+
   try {
     chatgptResponse = await prompt(job.data.messageContent, {
       conversationId: job.data.conversationId,
@@ -55,6 +67,11 @@ llmQueue.process(async function (
       { ...job.data, _retry: job.data._retry + 1 },
       { delay: 10000 }
     );
+
+    // Stop typing.
+    stopTypingOnChannelId(job.data.discordChannelId);
+    clearInterval(typingInterval);
+
     return done(error);
   }
 
@@ -86,24 +103,21 @@ llmQueue.process(async function (
     },
   });
 
+  // Stop typing.
+  stopTypingOnChannelId(job.data.discordChannelId);
+  clearInterval(typingInterval);
+
   signale.info(`Created message ${message.id}`);
 
   // Send message with Discord
-  const channel = await discord.channels.fetch(job.data.discordChannelId);
+  const chunks = splitMessage(content);
 
-  if (channel.isDMBased()) {
-    const dmChannel = channel as unknown as DMChannel;
-    await dmChannel.send(content);
-    return done();
-  }
-
-  if (channel.isTextBased()) {
-    const textChannel = channel as unknown as TextChannel;
-    await textChannel.send({
-      reply: { messageReference: job.data.discordMessageId },
-      content: content,
-    });
-    return done();
+  for (const chunk of chunks) {
+    sendMessageOnChannelId(
+      job.data.discordChannelId,
+      chunk,
+      job.data.discordMessageId
+    );
   }
 
   return done();

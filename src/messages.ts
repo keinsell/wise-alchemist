@@ -41,9 +41,6 @@ export async function addDiscordMessageAsPromptToQueue(
     }
   }
 
-  console.log("conversation: ", conversationId);
-  console.log("latestmessage: ", parentMessageId);
-
   await llmQueue.add({
     messageContent: message.content,
     discordChannelId: message.channelId,
