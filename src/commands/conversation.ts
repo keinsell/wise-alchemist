@@ -40,8 +40,7 @@ export class Conversation {
   }
 
   @Slash({
-    description:
-      "Activate the Wise Alchemist to share words of wisdom and offer insights on a variety of topics. Whether you're seeking guidance, inspiration, or just a friendly ear, the wise man is here to listen and help. Simply use this command to summon the Wise Alchemist to the channel, and he will be happy to respond to your messages. Please note that the wise man is a bot, and his responses are generated based on programmed responses. While he may not always have the perfect answer, he will do his best to offer helpful and thought-provoking responses.",
+    description: "Summon Wise Alchemist to chat. Get insights, wisdom.",
     name: "join",
   })
   async stay(interaction: CommandInteraction): Promise<void> {
@@ -55,8 +54,7 @@ export class Conversation {
   }
 
   @Slash({
-    description:
-      "If you need to pause the responses from the wise alchemist, this command is for you. Simply use it to temporarily deactivate the bot from responding to messages in the channel. Whether you need a break from the conversation or just want to focus on other things, the wise alchemist will respect your wishes and stop responding until you reactivate him. When you're ready to resume the conversation, use the activation command to bring the wise alchemist back to the channel. Please note that the wise alchemist is a bot, and his responses are generated based on programmed responses. While he may not always have the perfect answer, he will do his best to offer helpful and thought-provoking responses.",
+    description: "Pause Wise Alchemist's responses on this channel.",
     name: "exit",
   })
   async out(interaction: CommandInteraction): Promise<void> {
