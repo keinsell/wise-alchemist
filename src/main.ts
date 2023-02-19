@@ -3,9 +3,7 @@ import { discord } from "./infrastructure/discord.infra.js";
 import { config } from "dotenv";
 import { llmQueue } from "./llm.worker.js";
 import { dirname, importx } from "@discordx/importer";
-import { Interaction, Message, Partials } from "discord.js";
-import { IntentsBitField } from "discord.js";
-import { Client } from "discordx";
+import { Interaction, Message } from "discord.js";
 import signale from "signale";
 
 config();

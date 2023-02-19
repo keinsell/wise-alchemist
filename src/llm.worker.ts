@@ -25,7 +25,7 @@ interface LlmQueuePayload {
 }
 
 const llmQueue = new Queue<LlmQueuePayload>("llm", {
-  redis: process.env.REDIS_URL!,
+  redis: process.env.REDIS_URI!,
   // Limiq queue to max 1 jobs per one minute.
   //   limiter: {
   //     max: 1,
