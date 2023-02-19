@@ -22,3 +22,21 @@ services:
         reservations:
           cpus: "0.25"
           memory: 512M
+  redis:
+    container_name: wisealchemist-redis
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - "${PWD}/.cache/redis:/var/lib/redis"
+    mem_limit: 1024m
+    mem_reservation: 512M
+    cpus: 0.5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1024m
+        reservations:
+          cpus: "0.25"
+          memory: 512M

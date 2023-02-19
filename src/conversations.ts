@@ -1,5 +1,5 @@
 import { Conversation, Message } from "@prisma/client";
-import { prisma } from "./infra.prisma/prisma.infra.js";
+import { prisma } from "./infrastructure/prisma.infra.js";
 
 /**
  * Finds the latest conversation associated with the given channel ID.
