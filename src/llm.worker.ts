@@ -12,6 +12,7 @@ import {
   startTypingOnChannelId,
   stopTypingOnChannelId,
 } from "./utils/discord-utils.js";
+import redis from "./infrastructure/redis.infra.js";
 
 interface LlmQueuePayload {
   messageContent: string;
@@ -25,7 +26,7 @@ interface LlmQueuePayload {
 }
 
 const llmQueue = new Queue<LlmQueuePayload>("llm", {
-  redis: process.env.REDIS_URI!,
+  redis: redis.options,
   // Limiq queue to max 1 jobs per one minute.
   //   limiter: {
   //     max: 1,

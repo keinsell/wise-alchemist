@@ -49,6 +49,7 @@ async function run() {
 
   await prisma.$connect();
   await llmQueue.empty();
+  await llmQueue.resume();
 }
 
 run();
