@@ -26,7 +26,7 @@ export async function findLatestConversationByChannel(
 export async function closeConversationByChannel(
   channelId: string
 ): Promise<void> {
-  const latest = await this.findLatestConversationByChannel(channelId);
+  const latest = await findLatestConversationByChannel(channelId);
 
   if (!latest) return;
 
@@ -38,4 +38,6 @@ export async function closeConversationByChannel(
       isClosed: true,
     },
   });
+
+  return;
 }
