@@ -6,6 +6,7 @@ specifiers:
   '@discordx/importer': ^1.1.10
   '@discordx/pagination': ^3.4.0
   '@keyv/redis': ^2.5.5
+  '@nestjs/bull': ^0.6.3
   '@nestjs/cli': ^9.0.0
   '@nestjs/common': ^9.0.0
   '@nestjs/core': ^9.0.0
@@ -68,6 +69,7 @@ dependencies:
   '@discordx/importer': 1.1.10
   '@discordx/pagination': 3.4.0_discord.js@14.7.1
   '@keyv/redis': 2.5.5
+  '@nestjs/bull': 0.6.3_jsdxn6vypp2tcyo3cxrak5wh2u
   '@nestjs/common': 9.3.9_mnr6j2del53muneqly5h4y27ai
   '@nestjs/core': 9.3.9_q6agyr4hwia55oswpsa7zjxcpm
   '@nestjs/platform-express': 9.3.9_77foi4w27ghy47yutmnzv7krjy
@@ -1204,6 +1206,31 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@nestjs/bull-shared/0.1.3_77foi4w27ghy47yutmnzv7krjy:
+    resolution: {integrity: sha512-K0a1ERpnl/ZnTmm0UtYSSClDlDkQwNNwJYM6PogzpeflD64oqwVIn8Pj8rdS+BOYUxqdDy55q3p67ytO5oaVDA==}
+    peerDependencies:
+      '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0 || ^9.0.0
+      '@nestjs/core': ^6.10.11 || ^7.0.0 || ^8.0.0 || ^9.0.0
+    dependencies:
+      '@nestjs/common': 9.3.9_mnr6j2del53muneqly5h4y27ai
+      '@nestjs/core': 9.3.9_q6agyr4hwia55oswpsa7zjxcpm
+      tslib: 2.5.0
+    dev: false
+
+  /@nestjs/bull/0.6.3_jsdxn6vypp2tcyo3cxrak5wh2u:
+    resolution: {integrity: sha512-CckH9O3t9qSiO4RCzdYvtFSaaMfIhTXMYagV/rtmVvI1SX5XNnxEaQXvtjxDBXF9DB1JE/5AejIl6ICym+MJIw==}
+    peerDependencies:
+      '@nestjs/common': ^6.10.11 || ^7.0.0 || ^8.0.0 || ^9.0.0
+      '@nestjs/core': ^6.10.11 || ^7.0.0 || ^8.0.0 || ^9.0.0
+      bull: ^3.3 || ^4.0.0
+    dependencies:
+      '@nestjs/bull-shared': 0.1.3_77foi4w27ghy47yutmnzv7krjy
+      '@nestjs/common': 9.3.9_mnr6j2del53muneqly5h4y27ai
+      '@nestjs/core': 9.3.9_q6agyr4hwia55oswpsa7zjxcpm
+      bull: 4.10.4
+      tslib: 2.5.0
+    dev: false
 
   /@nestjs/cli/9.2.0:
     resolution: {integrity: sha512-6B1IjDcJbrOu55oMF67L1x5lDUOZ3Zs9l7bKCBH9D78965m8wq/2rlEWl/gJto5TABLQWy3hVvV/s8VzUlRMxw==}
