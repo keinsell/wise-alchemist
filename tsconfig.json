@@ -1,19 +1,21 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "NodeNext",
-    "outDir": "build",
-    "rootDir": "src",
-    "strict": false,
-    "moduleResolution": "nodenext",
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-
-    "experimentalDecorators": true,
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
     "emitDecoratorMetadata": true,
-
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
-  },
-  "exclude": ["build", "node_modules"]
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false
+  }
 }
