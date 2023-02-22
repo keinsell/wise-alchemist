@@ -37,16 +37,16 @@ export class PrismaService
 
   async onModuleInit() {
     this.$on('error', (event) => {
-      this.logger.error(event);
+      this.logger.error(event.message);
     });
     this.$on('warn', (event) => {
-      this.logger.warn(event);
+      this.logger.warn(event.message);
     });
     this.$on('info', (event) => {
-      this.logger.verbose(event);
+      this.logger.verbose(event.message);
     });
     this.$on('query', (event) => {
-      this.logger.log(event);
+      this.logger.verbose(event.query);
     });
     await this.$connect();
   }
