@@ -10,26 +10,36 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id           String         @id @default(cuid())
+  username     String         @unique
+  password     String?
+  discord_id   String?
+  telegram_id  String?
+  Conversation Conversation[]
+}
+
 model Conversation {
-  id        String    @id @default(uuid())
-  timestamp DateTime  @default(now())
-  channelId String
-  title     String?
-  isClosed  Boolean   @default(false)
-  Message   Message[]
+  id                 String    @id @default(cuid())
+  external_id        String    @unique
+  timestamp          DateTime  @default(now())
+  account            Account   @relation(fields: [account_id], references: [id])
+  account_id         String
+  discord_channel_id String?
+  telegram_chat_id   String?
+  Message            Message[]
 }
 
 model Message {
-  id                   String       @id @default(uuid())
-  timestamp            DateTime     @default(now())
-  parentMessageId      String?
-  conversationId       String
-  conversation         Conversation @relation(fields: [conversationId], references: [id])
-  discordMessageId     String
-  discordUserId        String
-  discordBotMessageIds String[]
-  input                String
-  output               String
-  model                String
-  tokensUsed           Int
+  id                  String       @id @default(cuid())
+  external_id         String       @unique
+  timestamp           DateTime     @default(now())
+  conversation        Conversation @relation(fields: [conversation_id], references: [id])
+  conversation_id     String
+  author              String
+  content             String
+  tokens              String[]
+  tokenCount          Int
+  discord_message_id  String[]
+  telegram_message_id String[]
 }
