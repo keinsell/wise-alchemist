@@ -3,6 +3,7 @@ import { AppController } from '../app.controller.js';
 import { AppService } from '../app.service.js';
 import { PrismaModule } from './prisma/prisma.module.js';
 import { DiscordModule } from './discord/discord.module.js';
+import { OnMessage } from 'src/application/discord/events/discord.on-message.event.js';
 
 @Module({
   imports: [PrismaModule, DiscordModule],

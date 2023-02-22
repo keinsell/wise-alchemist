@@ -24,4 +24,20 @@ export class ConversationService {
       data: { external_id: resource_id },
     });
   }
+
+  public async findOrCreateConversationByDiscordChannelId(
+    account: Account,
+    channel_id: string,
+  ): Promise<Conversation> {
+    const existingConversation = await this.prisma.conversation.findFirst({
+      where: { account: { id: account.id }, external_id: channel_id },
+    });
+
+    if (!existingConversation) {
+      // Create conversation
+      return this.startConversation(account, channel_id);
+    }
+
+    return existingConversation;
+  }
 }

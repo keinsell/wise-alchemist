@@ -1,5 +1,5 @@
 import { Injectable, Provider } from '@nestjs/common';
-import { Client } from 'discordx';
+import { Client, DIService, tsyringeDependencyRegistryEngine } from 'discordx';
 import { Interaction, Message, Partials } from 'discord.js';
 import { IntentsBitField } from 'discord.js';
 
