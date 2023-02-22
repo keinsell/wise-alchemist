@@ -1,7 +1,7 @@
 import { Message } from "@prisma/client";
 import { Message as DiscordMessage } from "discord.js";
 import { prisma } from "./infrastructure/prisma.infra.js";
-import { chatgptQueue } from "./chatgpt.worker.js";
+import { chatgptQueue } from "./chatgpt/chatgpt.worker.js";
 import { findLatestConversationByChannel } from "./conversations.js";
 import signale from "signale";
 

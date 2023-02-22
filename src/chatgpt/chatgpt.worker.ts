@@ -1,18 +1,18 @@
 import Queue, { DoneCallback, Job } from "bull";
 import signale from "signale";
 import { ChatgptModel, ChatgptResponse, prompt } from "./chatgpt.js";
-import { prisma } from "./infrastructure/prisma.infra.js";
+import { prisma } from "../infrastructure/prisma.infra.js";
 import { encode } from "gpt-3-encoder";
-import { discord } from "./infrastructure/discord.infra.js";
+import { discord } from "../infrastructure/discord.infra.js";
 import { DMChannel, TextChannel } from "discord.js";
-import { splitMessage } from "./utils/message-splitting.js";
+import { splitMessage } from "../utils/message-splitting.js";
 import {
   DISCORD_TYPING_INTERVAL,
   sendMessageOnChannelId,
   startTypingOnChannelId,
   stopTypingOnChannelId,
-} from "./utils/discord-utils.js";
-import redis from "./infrastructure/redis.infra.js";
+} from "../utils/discord-utils.js";
+import redis from "../infrastructure/redis.infra.js";
 
 interface LlmQueuePayload {
   messageContent: string;

@@ -1,7 +1,7 @@
 import { prisma } from "./infrastructure/prisma.infra.js";
 import { discord } from "./infrastructure/discord.infra.js";
 import { config } from "dotenv";
-import { chatgptQueue } from "./chatgpt.worker.js";
+import { chatgptQueue } from "./chatgpt/chatgpt.worker.js";
 import { dirname, importx } from "@discordx/importer";
 import { Interaction, Message } from "discord.js";
 import signale from "signale";
