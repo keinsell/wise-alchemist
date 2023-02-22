@@ -5,6 +5,7 @@ import { chatgptQueue } from "./chatgpt/chatgpt.worker.js";
 import { dirname, importx } from "@discordx/importer";
 import { Interaction, Message } from "discord.js";
 import signale from "signale";
+import { bingchat } from "./edgegpt/edgegpt.js";
 
 config();
 
@@ -50,6 +51,8 @@ async function run() {
   await prisma.$connect();
   await chatgptQueue.empty();
   await chatgptQueue.resume();
+
+  console.log(await bingchat.sendMessage("hello world"));
 }
 
 run();

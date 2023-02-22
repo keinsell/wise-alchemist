@@ -964,6 +964,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bing-chat@npm:^0.2.1":
+  version: 0.2.1
+  resolution: "bing-chat@npm:0.2.1"
+  dependencies:
+    ws: ^8.12.0
+  checksum: b3ffa18a0c010bcf0306e6d475ce97f9ee23d5ed40dd1136462bd19a8a369f1947974bf1e1d2a1d7b472033bf418704eeb8abeee90b359c2111d7d506d624192
+  languageName: node
+  linkType: hard
+
 "brace-expansion@npm:^1.1.7":
   version: 1.1.11
   resolution: "brace-expansion@npm:1.1.11"
@@ -4693,6 +4702,7 @@ __metadata:
     "@types/prettier": ^2.7.2
     "@types/signale": ^1.4.4
     "@types/uuid": ^9.0.0
+    bing-chat: ^0.2.1
     bull: ^4.10.4
     delay: ^5.0.0
     discord.js: ^14.7.1
@@ -4768,6 +4778,21 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: 818ff3f8749c172a95a114cceb8b89cedd27e43a82d65c7ad0f7882b1e96a2ee6709e3746a903c3fa88beec0c8bae9a9fcd75f20858b32a166dfb7519316a5d7
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.12.0":
+  version: 8.12.1
+  resolution: "ws@npm:8.12.1"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 97301c1c4d838fc81bd413f370f75c12aabe44527b31323b761eab3043a9ecb7e32ffd668548382c9a6a5ad3a1c3a9249608e8338e6b939f2f9540f1e21970b5
   languageName: node
   linkType: hard
 
