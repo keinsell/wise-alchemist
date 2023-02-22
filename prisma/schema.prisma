@@ -21,12 +21,14 @@ model Account {
 
 model Conversation {
   id                 String    @id @default(cuid())
-  external_id        String    @unique
+  external_id        String?   @unique
   timestamp          DateTime  @default(now())
   account            Account   @relation(fields: [account_id], references: [id])
   account_id         String
   discord_channel_id String?
   telegram_chat_id   String?
+  model              String
+  isArchived         Boolean   @default(false)
   Message            Message[]
 }
 
