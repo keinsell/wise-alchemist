@@ -1,7 +1,7 @@
 import { prisma } from "./infrastructure/prisma.infra.js";
 import { discord } from "./infrastructure/discord.infra.js";
 import { config } from "dotenv";
-import { llmQueue } from "./llm.worker.js";
+import { chatgptQueue } from "./chatgpt.worker.js";
 import { dirname, importx } from "@discordx/importer";
 import { Interaction, Message } from "discord.js";
 import signale from "signale";
@@ -48,8 +48,8 @@ async function run() {
   await discord.login(process.env.BOT_TOKEN);
 
   await prisma.$connect();
-  await llmQueue.empty();
-  await llmQueue.resume();
+  await chatgptQueue.empty();
+  await chatgptQueue.resume();
 }
 
 run();

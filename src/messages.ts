@@ -1,7 +1,7 @@
 import { Message } from "@prisma/client";
 import { Message as DiscordMessage } from "discord.js";
 import { prisma } from "./infrastructure/prisma.infra.js";
-import { llmQueue } from "./llm.worker.js";
+import { chatgptQueue } from "./chatgpt.worker.js";
 import { findLatestConversationByChannel } from "./conversations.js";
 import signale from "signale";
 
@@ -41,7 +41,7 @@ export async function addDiscordMessageAsPromptToQueue(
     }
   }
 
-  await llmQueue.add({
+  await chatgptQueue.add({
     messageContent: message.content,
     discordChannelId: message.channelId,
     discordMessageId: message.id,

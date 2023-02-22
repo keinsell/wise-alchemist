@@ -1,6 +1,6 @@
 import Queue, { DoneCallback, Job } from "bull";
 import signale from "signale";
-import { ChatgptModel, ChatgptResponse, prompt } from "./llm.js";
+import { ChatgptModel, ChatgptResponse, prompt } from "./chatgpt.js";
 import { prisma } from "./infrastructure/prisma.infra.js";
 import { encode } from "gpt-3-encoder";
 import { discord } from "./infrastructure/discord.infra.js";
@@ -25,7 +25,7 @@ interface LlmQueuePayload {
   _retry?: number;
 }
 
-const llmQueue = new Queue<LlmQueuePayload>("llm", {
+const chatgptQueue = new Queue<LlmQueuePayload>("llm", {
   redis: redis.options,
   // Limiq queue to max 1 jobs per one minute.
   //   limiter: {
@@ -34,7 +34,7 @@ const llmQueue = new Queue<LlmQueuePayload>("llm", {
   //   },
 });
 
-llmQueue.process(async function (
+chatgptQueue.process(async function (
   job: Job<LlmQueuePayload>,
   done: DoneCallback
 ) {
@@ -64,7 +64,7 @@ llmQueue.process(async function (
     });
   } catch (error) {
     signale.error(`Caught error: ${error}`);
-    await llmQueue.add(
+    await chatgptQueue.add(
       { ...job.data, _retry: job.data._retry + 1 },
       { delay: 10000 }
     );
@@ -124,12 +124,12 @@ llmQueue.process(async function (
   return done();
 });
 
-llmQueue.on("completed", () => {
+chatgptQueue.on("completed", () => {
   signale.success("Completed");
 });
 
-llmQueue.on("resumed", () => {
+chatgptQueue.on("resumed", () => {
   signale.success("LLM Queue is up and ready to go!");
 });
 
-export { llmQueue };
+export { chatgptQueue };

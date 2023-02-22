@@ -1,7 +1,7 @@
 import type { CommandInteraction } from "discord.js";
 import { Discord, Slash, SlashChoice } from "discordx";
 import { closeConversationByChannel } from "../conversations.js";
-import { ChatgptModel } from "../llm.js";
+import { ChatgptModel } from "../chatgpt.js";
 import { keyv } from "../infrastructure/keyv.infra.js";
 import ms from "ms";
 
