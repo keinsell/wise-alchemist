@@ -1,22 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './infrastructure/app.module.js';
 import { dirname, importx, isESM } from '@discordx/importer';
-import {
-  Client,
-  DIService,
-  tsyringeDependencyRegistryEngine,
-  typeDiDependencyRegistryEngine,
-} from 'discordx';
+import { Client } from 'discordx';
 import { Interaction, Message } from 'discord.js';
 import { Logger } from '@nestjs/common';
-import { NestjsDependencyRegistryEngine } from './infrastructure/discord/discord.dependency-registry-engine.js';
 
 async function bootstrap() {
   const logger = new Logger('main');
   const app = await NestFactory.create(AppModule);
   await app.listen(3000);
-
-  DIService.engine = NestjsDependencyRegistryEngine.setContainer(app);
   const discord = app.get(Client);
 
   discord.on('ready', async () => {
