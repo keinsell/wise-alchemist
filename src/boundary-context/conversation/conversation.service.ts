@@ -1,6 +1,8 @@
+import { Injectable } from '@nestjs/common';
 import { Account, Conversation } from '@prisma/client';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 
+@Injectable()
 export class ConversationService {
   constructor(private prisma: PrismaService) {}
   public async startConversation(

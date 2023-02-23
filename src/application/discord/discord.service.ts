@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { IntentsBitField, Interaction, Message, Partials } from 'discord.js';
 import { Client, ILogger } from 'discordx';
+import { DiscordOnMessageEvent } from './events/discord.on-message.event';
 
 export class DiscordxLogger implements ILogger {
   private logger = new Logger('discordx');
@@ -34,7 +35,7 @@ export class DiscordxLogger implements ILogger {
 @Injectable()
 export class DiscordService extends Client implements OnModuleInit {
   private readonly nestLogger = new Logger(DiscordService.name);
-  constructor() {
+  constructor(private onMessageCreateEvent: DiscordOnMessageEvent) {
     super({
       logger: new DiscordxLogger(),
       intents: [
@@ -83,6 +84,7 @@ export class DiscordService extends Client implements OnModuleInit {
 
     this.on('messageCreate', async (message: Message) => {
       this.executeCommand(message);
+      this.onMessageCreateEvent.messageCreate([message], this);
     });
 
     await this.login(process.env.BOT_TOKEN);

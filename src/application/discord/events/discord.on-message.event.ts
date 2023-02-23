@@ -5,17 +5,14 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AccountService } from 'src/boundary-context/account/account.service';
 import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
 
-@Discord()
 @Injectable()
-export class OnMessage {
+export class DiscordOnMessageEvent {
   constructor(
     private accountService: AccountService,
     private conversationService: ConversationService,
   ) {}
-
   private logger = new Logger('discord.on-message.event');
 
-  @On({ event: 'messageCreate' })
   async messageCreate(
     [message]: ArgsOf<'messageCreate'>,
     client: Client,
@@ -56,7 +53,6 @@ export class OnMessage {
       );
 
     // Construct new message
-
     // TODO: Produce and publish event GotMessage. This event will be consumed by an other boundary context. The goal is to isolate this context from others and avoid cross-coupling.
   }
 }
