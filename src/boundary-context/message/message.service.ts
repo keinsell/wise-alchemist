@@ -3,7 +3,7 @@ import { Message as DiscordMessage } from 'discord.js';
 import { encode } from 'gpt-3-encoder';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 
-export class ConversationService {
+export class MessageService {
   constructor(private prisma: PrismaService) {}
   public async createMessageFromDiscord(
     message: DiscordMessage,
