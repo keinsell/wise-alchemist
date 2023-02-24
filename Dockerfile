@@ -20,4 +20,4 @@ RUN yarn run db:generate
 RUN yarn run build
 
 # Start bot
-CMD [ "node", "./build/main.js" ]
+CMD [ "node", "./dist/main.js" ]
