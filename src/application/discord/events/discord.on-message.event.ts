@@ -58,6 +58,31 @@ export class DiscordOnMessageEvent {
 
     this.logger.log(`Message ${message.id} authorized.`);
 
+    // Improve content provided in a message. If somebody mentioned a bot
+    // or maybe other user we should replace mentions for privacy prupose.
+
+    message.content = message.content
+      .replace(new RegExp(`<@!?${client.user!.id}>`, 'gi'), '')
+      .trim();
+
+    // Additionally we want to read .txt files attached to messages.
+
+    if (
+      message.attachments.some((attachment) =>
+        attachment.name?.endsWith('.txt'),
+      )
+    ) {
+      message.content += '\n';
+      for (const attachment of message.attachments) {
+        const file = await fetch(attachment[1].url).then((response) =>
+          response.arrayBuffer(),
+        );
+        const decoder = new TextDecoder();
+        const contentx = decoder.decode(file);
+        message.content += '\n\n' + contentx;
+      }
+    }
+
     // Find an existing conversation in our system for given discord channel
     // If one conversation is not found, we're using account of user to create
     // a new one and associate it to discord channel.
