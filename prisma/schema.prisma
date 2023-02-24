@@ -57,3 +57,10 @@ model Completion {
   messageId      String?
   message        Message?      @relation(fields: [messageId], references: [id])
 }
+
+model Event {
+  id        Int      @id @default(autoincrement())
+  timestamp DateTime @default(now())
+  eventName String
+  payload   Json?
+}

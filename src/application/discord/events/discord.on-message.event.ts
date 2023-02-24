@@ -9,6 +9,8 @@ import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { LargeLanguageModelCompleteTask } from 'src/boundary-context/large-language-model/consumers/complete.consumer';
 import { ChatgptModel } from 'src/boundary-context/large-language-model/provider/chatgpt/chatgpt.model';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { MessageAuthorizedEvent } from 'src/boundary-context/message/events/message-authorized/message-authorized.event';
 
 @Injectable()
 export class DiscordOnMessageEvent {
@@ -16,8 +18,7 @@ export class DiscordOnMessageEvent {
     private accountService: AccountService,
     private conversationService: ConversationService,
     private messageService: MessageService,
-    @InjectQueue('large_language_model.complete')
-    private audioQueue: Queue<LargeLanguageModelCompleteTask>,
+    private eventEmitter: EventEmitter2, // @InjectQueue('large_language_model.complete') // private audioQueue: Queue<LargeLanguageModelCompleteTask>,
   ) {}
   private logger = new Logger('discord.on-message.event');
 
@@ -71,10 +72,15 @@ export class DiscordOnMessageEvent {
 
     this.logger.log(`Message ${createdMessage.id} created.`);
 
-    const job = await this.audioQueue.add({
-      conversationId: conversation.id,
-      messageId: createdMessage.id,
-    });
+    this.eventEmitter.emit(
+      'message.authorized',
+      new MessageAuthorizedEvent({ messageId: createdMessage.id }),
+    );
+
+    // const job = await this.audioQueue.add({
+    //   conversationId: conversation.id,
+    //   messageId: createdMessage.id,
+    // });
 
     // TODO: Produce and publish event GotMessage. This event will be consumed by an other boundary context. The goal is to isolate this context from others and avoid cross-coupling.
   }
