@@ -5,9 +5,9 @@ import { Queue } from 'bull';
 import { PromptCreatedEvent } from 'src/boundary-context/prompt/events/prompt-created/prompt-created.event';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import { CompletionTask } from '../processors/completion.processor';
-import { DiscordService } from 'src/infrastructure/discord/discord.service';
 import { CompletionGeneratedEvent } from '../events/completion-generated/completion-generated.event';
 import { TextChannel } from 'discord.js';
+import { DiscordService } from 'src/application/discord/discord.service';
 
 @Injectable()
 export class AfterCompletionGeneratedConsumer {

@@ -54,12 +54,6 @@ export class ChatgptLargeLanguageModelService
       promptWithConversationAndMessage.message.conversation,
     );
 
-    console.log(conversationId);
-    console.log(parentMessageId);
-
-    // Send a "STARTED_GENERATION" event
-    this.logger.log(`Running generation for ${messageId}...`);
-
     // Send request to https://chat.openai.com/backend-api/conversation
 
     let response: any;
@@ -152,10 +146,10 @@ export class ChatgptLargeLanguageModelService
       conversationId,
     );
 
-    // await this.updateIdOfParentMessageSendByUser(
-    //   promptWithConversationAndMessage.message,
-    //   parentMessageId,
-    // );
+    await this.updateIdOfParentMessageSendByUser(
+      promptWithConversationAndMessage.message,
+      parentMessageId,
+    );
 
     await this.prismaService.message.create({
       data: {
@@ -205,10 +199,12 @@ export class ChatgptLargeLanguageModelService
     if (!parentMessageId) {
       parentMessageId = randomUUID();
 
-      await this.prismaService.message.update({
-        where: { id: message.id },
-        data: { external_id: parentMessageId },
-      });
+      if (message) {
+        await this.prismaService.message.update({
+          where: { id: message.id },
+          data: { external_id: parentMessageId },
+        });
+      }
     }
 
     return parentMessageId;
@@ -230,6 +226,17 @@ export class ChatgptLargeLanguageModelService
   ): Promise<void> {
     // If Message have attached a external_id and external_id is same as parentMessageId, break function
     if (message?.external_id && message?.external_id === parentMessageId) {
+      return;
+    }
+
+    const isMessageWithSelectedParentMessageId =
+      await this.prismaService.message.findFirst({
+        where: {
+          external_id: parentMessageId,
+        },
+      });
+
+    if (isMessageWithSelectedParentMessageId) {
       return;
     }
 

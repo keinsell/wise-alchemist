@@ -36,7 +36,7 @@ export class CompletionProcessor {
     // Find a complete information about promptId provided in job.data
     const prompt = await this.prismaService.prompt.findUnique({
       where: {
-        id: job.data.promptId,
+        id: job.data.prompt.id,
       },
     });
 
@@ -65,7 +65,7 @@ export class CompletionProcessor {
     }
 
     try {
-      const generation = await provider.prompt(prompt);
+      await provider.prompt(prompt);
     } catch (error) {
       this.logger.error(error);
       await job.moveToFailed(error);
