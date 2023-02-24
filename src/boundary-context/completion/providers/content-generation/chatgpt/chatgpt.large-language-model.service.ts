@@ -1,28 +1,25 @@
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
-import {
-  LargeLanguageModelOptions,
-  LargeLanguageModelProvider,
-} from '../../../adapters/providers/content-generation/large-language-model.provider';
 import { Injectable, Logger } from '@nestjs/common';
-import { Message } from '@prisma/client';
+import { Completion, Conversation, Message, Prompt } from '@prisma/client';
 import { ChatgptModel } from './chatgpt.model';
 import { randomUUID } from 'node:crypto';
 import { ChatgptResponse } from './chatgpt.response';
 import { encode } from 'gpt-3-encoder';
-
-export interface ChatgptLargeLanguageModelOptions
-  extends LargeLanguageModelOptions {
-  model: ChatgptModel;
-}
+import { ContentGenerationProvider } from 'src/boundary-context/completion/adapters/providers/content-generation/content-generation.provider';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { CompletionGeneratedEvent } from 'src/boundary-context/completion/events/completion-generated/completion-generated.event';
 
 @Injectable()
 export class ChatgptLargeLanguageModelService
-  implements LargeLanguageModelProvider<ChatgptLargeLanguageModelOptions>
+  implements ContentGenerationProvider
 {
   private logger = new Logger(ChatgptLargeLanguageModelService.name);
   private readonly authorizationHeader: string;
   private readonly cookies: string;
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private publisher: EventEmitter2,
+  ) {
     if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
       this.logger.error('Could not find CHATGPT_* environment variables.');
       process.exit(1);
@@ -31,22 +28,34 @@ export class ChatgptLargeLanguageModelService
     this.authorizationHeader = process.env.CHATGPT_AUTH_TOKEN;
     this.cookies = process.env.CHATGPT_COOKIES;
   }
+  async prompt(prompt: Prompt): Promise<Completion> {
+    const model = prompt.model as ChatgptModel;
+    const promptWithConversationAndMessage =
+      await this.prismaService.prompt.findUnique({
+        where: {
+          id: prompt.id,
+        },
+        include: {
+          message: {
+            include: {
+              conversation: true,
+            },
+          },
+        },
+      });
 
-  async promptMessage(
-    message: string,
-    options?: ChatgptLargeLanguageModelOptions,
-  ): Promise<Message> {
-    // Extract core information from options
-    let model = options?.model;
     let messageId = randomUUID();
 
-    let parentMessageId = await this.getParentMessageIdFromOptions(options);
-    let conversationId = await this.getConversationIdFromOptions(options);
+    const parentMessageId = await this.getParentMessageIdFromConversation(
+      promptWithConversationAndMessage.message.conversation,
+    );
 
-    // If model is missing default to turbo
-    if (!model) {
-      model = ChatgptModel.turbo;
-    }
+    let conversationId = await this.getConversationIdByConversation(
+      promptWithConversationAndMessage.message.conversation,
+    );
+
+    console.log(conversationId);
+    console.log(parentMessageId);
 
     // Send a "STARTED_GENERATION" event
     this.logger.log(`Running generation for ${messageId}...`);
@@ -74,7 +83,7 @@ export class ChatgptLargeLanguageModelService
                 role: 'user',
                 content: {
                   content_type: 'text',
-                  parts: [message],
+                  parts: [prompt.prompt],
                 },
               },
             ],
@@ -112,8 +121,7 @@ export class ChatgptLargeLanguageModelService
       const wrongConversationIdOrParentId =
         'Something went wrong, please try reloading the conversation.';
 
-      //   prompt.setFailedState();
-      //   throw new InvalidChatgptResponse(parsed.detail);
+      throw new Error();
     }
 
     const final = result[result.length - 2];
@@ -124,112 +132,141 @@ export class ChatgptLargeLanguageModelService
     const plainContent = parsedResponse.message.content.parts.join();
     const tokens = encode(plainContent);
 
-    // Attach externalId to conversation if do not have any
-    if (!conversationId) {
-      conversationId = parsedResponse.conversation_id;
+    conversationId = parsedResponse.conversation_id;
+    messageId = parsedResponse.message.id;
 
-      await this.prismaService.conversation.update({
-        where: {
-          id: options?.conversation.id,
+    // Save generation in database
+    const generation = await this.prismaService.completion.create({
+      data: {
+        Prompt: {
+          connect: {
+            id: prompt.id,
+          },
         },
-        data: {
-          external_id: conversationId,
-        },
-      });
-    }
+        completion: plainContent,
+      },
+    });
 
-    // Find parent message which was used for generation
-    const parentMessage = await this.prismaService.message.findFirst({
+    await this.addExternalidToConversation(
+      promptWithConversationAndMessage.message.conversation,
+      conversationId,
+    );
+
+    // await this.updateIdOfParentMessageSendByUser(
+    //   promptWithConversationAndMessage.message,
+    //   parentMessageId,
+    // );
+
+    await this.prismaService.message.create({
+      data: {
+        external_id: messageId,
+        author: 'SYSTEM',
+        content: plainContent,
+        tokenCount: tokens.length,
+        tokens,
+        conversation: {
+          connect: {
+            id: promptWithConversationAndMessage.message.conversation.id,
+          },
+        },
+      },
+    });
+
+    this.publisher.emit(
+      'completion.generated',
+      new CompletionGeneratedEvent({
+        promptCreatedByMessage: promptWithConversationAndMessage.message,
+        createdByPrompt: promptWithConversationAndMessage,
+        messageFromConversation:
+          promptWithConversationAndMessage.message.conversation,
+        generationMade: generation,
+      }),
+    );
+  }
+
+  private async getParentMessageIdFromConversation(
+    conversation: Conversation,
+  ): Promise<string> {
+    let parentMessageId = undefined;
+
+    const message = await this.prismaService.message.findFirst({
       where: {
-        conversation_id: options?.conversation.id,
+        conversation_id: conversation.id,
+        external_id: { not: null },
       },
       orderBy: {
         timestamp: 'desc',
       },
     });
 
-    // If parentMessage exist make it a reference for generation
-    if (parentMessage) {
-      this.logger.log(
-        `Reference found for ${messageId}: Parent message is ${parentMessage.id}`,
-      );
-
-      this.prismaService.message.update({
-        where: {
-          id: parentMessage.id,
-        },
-        data: {
-          external_id: parentMessageId,
-        },
-      });
-    }
-
-    // Create a new message with generation content
-
-    const generatedMessage = await this.prismaService.message.create({
-      data: {
-        external_id: messageId,
-        content: plainContent,
-        author: 'SYSTEM',
-        conversation: {
-          connect: {
-            external_id: conversationId,
-          },
-        },
-        tokenCount: tokens.length,
-        tokens: tokens,
-      },
-    });
-
-    console.log(generatedMessage);
-  }
-
-  public async getParentMessageIdFromOptions(
-    options?: ChatgptLargeLanguageModelOptions,
-  ): Promise<string> {
-    let parentMessageId = undefined;
-
-    // Check for provided conversation.
-    if (options?.conversation) {
-      // Fetch all messages in conversation and find latest message generated by system.
-      const message = await this.prismaService.message.findFirst({
-        select: { external_id: true },
-        where: {
-          conversation_id: options.conversation.id,
-        },
-        orderBy: {
-          timestamp: 'desc',
-        },
-      });
-
-      // If message was found, extract message externalId
-      if (message) parentMessageId = message.external_id;
-    }
+    if (message) parentMessageId = message.external_id;
 
     // If no parentMessageId was found, generate an unique Id with uuid.
-    if (!parentMessageId) parentMessageId = randomUUID();
+    if (!parentMessageId) {
+      parentMessageId = randomUUID();
+
+      await this.prismaService.message.update({
+        where: { id: message.id },
+        data: { external_id: parentMessageId },
+      });
+    }
 
     return parentMessageId;
   }
 
-  public async getConversationIdFromOptions(
-    options?: ChatgptLargeLanguageModelOptions,
+  private async getConversationIdByConversation(
+    conversation: Conversation,
   ): Promise<string | undefined> {
     let conversationId = undefined;
 
-    if (options?.conversation) {
-      const conversation = await this.prismaService.conversation.findFirst({
-        select: { external_id: true },
-        where: {
-          id: options.conversation.id,
-        },
-      });
-
-      if (conversation) {
-        conversationId = conversation.external_id;
-      }
-    }
+    conversationId = conversation?.external_id ?? undefined;
 
     return conversationId;
+  }
+
+  private async updateIdOfParentMessageSendByUser(
+    message: Message,
+    parentMessageId: string,
+  ): Promise<void> {
+    // If Message have attached a external_id and external_id is same as parentMessageId, break function
+    if (message?.external_id && message?.external_id === parentMessageId) {
+      return;
+    }
+
+    await this.prismaService.message.update({
+      where: {
+        id: message.id,
+      },
+      data: {
+        external_id: parentMessageId,
+      },
+    });
+  }
+
+  private async addExternalidToConversation(
+    conversation: Conversation,
+    conversationId: string,
+  ): Promise<void> {
+    await this.prismaService.conversation.update({
+      where: { id: conversation!.id },
+      data: { external_id: conversationId },
+    });
+  }
+
+  private async createMessageFromChatgptResponse(
+    parsedResponse: ChatgptResponse,
+    prompt: Prompt,
+  ): Promise<void> {
+    const plainContent = parsedResponse.message.content.parts.join();
+    const tokens = encode(plainContent);
+
+    // const message = await this.prismaService.message.create({
+    //   data: {
+    //     external_id: parsedResponse.message.id,
+    //   },
+    //   include: {
+    //     conversation: true,
+    //   },
+    // });
   }
 }
