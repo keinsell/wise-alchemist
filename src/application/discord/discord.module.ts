@@ -6,15 +6,17 @@ import { ConversationModule } from 'src/boundary-context/conversation/conversati
 import { PrismaModule } from 'src/infrastructure/prisma/prisma.module';
 import { MessageModule } from 'src/boundary-context/message/message.module';
 import { BullModule } from '@nestjs/bull';
+import { LargeLanguageModelModule } from 'src/boundary-context/large-language-model/infra/large-language-model.module';
 
 @Module({
   imports: [
     AccountModule,
     ConversationModule,
     MessageModule,
-    BullModule.registerQueue({
-      name: 'completion',
-    }),
+    // BullModule.registerQueue({
+    //   name: 'large_language_model.complete',
+    // }),
+    LargeLanguageModelModule,
   ],
   exports: [DiscordService],
   providers: [DiscordService, DiscordOnMessageEvent],

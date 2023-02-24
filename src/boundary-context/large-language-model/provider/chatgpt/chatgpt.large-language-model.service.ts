@@ -1,5 +1,8 @@
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
-import { LargeLanguageModelProvider } from '../../large-language-model.provider';
+import {
+  LargeLanguageModelOptions,
+  LargeLanguageModelProvider,
+} from '../../large-language-model.provider';
 import { Injectable, Logger } from '@nestjs/common';
 import { Message } from '@prisma/client';
 import { ChatgptModel } from './chatgpt.model';
@@ -9,10 +12,9 @@ import { encode } from 'gpt-3-encoder';
 import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
 import { MessageService } from 'src/boundary-context/message/message.service';
 
-export interface ChatgptLargeLanguageModelOptions {
+export interface ChatgptLargeLanguageModelOptions
+  extends LargeLanguageModelOptions {
   model: ChatgptModel;
-  conversationId?: string;
-  parentMessageId?: string;
 }
 
 @Injectable()
@@ -40,10 +42,28 @@ export class ChatgptLargeLanguageModelService
     options?: ChatgptLargeLanguageModelOptions,
   ): Promise<Message> {
     // Extract core information from options
-    let conversationId = options?.conversationId;
-    let parentMessageId = options?.parentMessageId;
+    let conversationId = options?.conversation.external_id;
     let model = options?.model;
     let messageId = randomUUID();
+
+    let parentMessageId = undefined;
+
+    // Find parentmessageId with conversationId
+    if (conversationId) {
+      const parentMessage = await this.prismaService.message.findFirst({
+        where: {
+          conversation_id: conversationId,
+          author: 'SYSTEM',
+        },
+        orderBy: {
+          timestamp: 'desc',
+        },
+      });
+
+      if (parentMessage && parentMessage.external_id) {
+        parentMessageId = parentMessage.external_id;
+      }
+    }
 
     // If parntMessageId is missing generate a new one with uuid
     if (!parentMessageId) {

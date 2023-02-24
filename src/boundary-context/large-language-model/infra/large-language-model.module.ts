@@ -4,6 +4,7 @@ import { ChatgptLargeLanguageModelService } from '../provider/chatgpt/chatgpt.la
 import { MessageModule } from '../../message/message.module';
 import { ConversationModule } from '../../conversation/conversation.module';
 import { BullModule } from '@nestjs/bull';
+import { LargeLanguageModelCompletionConsumer } from '../consumers/complete.consumer';
 
 @Module({
   imports: [
@@ -11,10 +12,19 @@ import { BullModule } from '@nestjs/bull';
     MessageModule,
     ConversationModule,
     BullModule.registerQueue({
-      name: 'completion',
+      name: 'large_language_model.complete',
     }),
   ],
-  exports: [ChatgptLargeLanguageModelService],
-  providers: [ChatgptLargeLanguageModelService],
+  exports: [
+    LargeLanguageModelCompletionConsumer,
+    ChatgptLargeLanguageModelService,
+    BullModule.registerQueue({
+      name: 'large_language_model.complete',
+    }),
+  ],
+  providers: [
+    ChatgptLargeLanguageModelService,
+    LargeLanguageModelCompletionConsumer,
+  ],
 })
 export class LargeLanguageModelModule {}
