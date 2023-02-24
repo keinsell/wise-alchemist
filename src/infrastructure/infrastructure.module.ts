@@ -20,10 +20,7 @@ import { CompletionModule } from 'src/boundary-context/completion/infrastructure
     EventStorageModule,
     CompletionModule,
     BullModule.forRoot({
-      redis: {
-        host: 'localhost',
-        port: 6379,
-      },
+      redis: process.env.REDIS_URL,
     }),
   ],
   controllers: [],
