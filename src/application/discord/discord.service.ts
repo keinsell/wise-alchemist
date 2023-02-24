@@ -34,7 +34,7 @@ export class DiscordxLogger implements ILogger {
 
 @Injectable()
 export class DiscordService extends Client implements OnModuleInit {
-  private readonly nestLogger = new Logger(DiscordService.name);
+  private readonly _logger = new Logger(DiscordService.name);
   constructor(private onMessageCreateEvent: DiscordOnMessageEvent) {
     super({
       logger: new DiscordxLogger(),
@@ -75,7 +75,7 @@ export class DiscordService extends Client implements OnModuleInit {
       await this.clearApplicationCommands(
         ...this.guilds.cache.map((g) => g.id),
       );
-      this.nestLogger.log('Successfully started Discord Application!');
+      this._logger.log('Successfully started Discord Application!');
     });
 
     this.on('interactionCreate', async (interaction: Interaction) => {

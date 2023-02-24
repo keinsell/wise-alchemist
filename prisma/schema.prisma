@@ -20,21 +20,22 @@ model Account {
 }
 
 model Conversation {
-  id                 String    @id @default(cuid())
-  external_id        String?   @unique
-  timestamp          DateTime  @default(now())
-  account            Account   @relation(fields: [account_id], references: [id])
+  id                 String       @id @default(cuid())
+  external_id        String?      @unique
+  timestamp          DateTime     @default(now())
+  account            Account      @relation(fields: [account_id], references: [id])
   account_id         String
   discord_channel_id String?
   telegram_chat_id   String?
   model              String
-  isArchived         Boolean   @default(false)
+  isArchived         Boolean      @default(false)
   Message            Message[]
+  Completion         Completion[]
 }
 
 model Message {
   id                  String       @id @default(cuid())
-  external_id         String       @unique
+  external_id         String?      @unique
   timestamp           DateTime     @default(now())
   conversation        Conversation @relation(fields: [conversation_id], references: [id])
   conversation_id     String
@@ -44,4 +45,15 @@ model Message {
   tokenCount          Int
   discord_message_id  String[]
   telegram_message_id String[]
+  Completion          Completion[]
+}
+
+model Completion {
+  id             Int           @id @default(autoincrement())
+  prompt         String
+  completion     String
+  conversationId String?
+  conversation   Conversation? @relation(fields: [conversationId], references: [id])
+  messageId      String?
+  message        Message?      @relation(fields: [messageId], references: [id])
 }

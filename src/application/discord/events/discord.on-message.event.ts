@@ -4,12 +4,14 @@ import { ChannelType } from 'discord.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { AccountService } from 'src/boundary-context/account/account.service';
 import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
+import { MessageService } from 'src/boundary-context/message/message.service';
 
 @Injectable()
 export class DiscordOnMessageEvent {
   constructor(
     private accountService: AccountService,
     private conversationService: ConversationService,
+    private messageService: MessageService,
   ) {}
   private logger = new Logger('discord.on-message.event');
 
@@ -52,7 +54,17 @@ export class DiscordOnMessageEvent {
         message.channel.id,
       );
 
+    this.logger.log(`Found conversation ${conversation.id}.`);
+
     // Construct new message
+
+    const createdMessage = await this.messageService.createMessageFromDiscord(
+      message,
+      conversation,
+    );
+
+    this.logger.log(`Message ${createdMessage.id} created.`);
+
     // TODO: Produce and publish event GotMessage. This event will be consumed by an other boundary context. The goal is to isolate this context from others and avoid cross-coupling.
   }
 }
