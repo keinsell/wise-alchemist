@@ -41,6 +41,7 @@
     "discord.js": "^14.7.1",
     "discordx": "^11.7.0",
     "dotenv": "^16.0.3",
+    "fp-ts": "^2.13.1",
     "gpt-3-encoder": "^1.1.4",
     "ioredis": "^5.3.1",
     "keyv": "^4.5.2",
