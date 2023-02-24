@@ -46,16 +46,27 @@ model Message {
   discord_message_id  String[]
   telegram_message_id String[]
   Completion          Completion[]
+  Prompt              Prompt[]
+}
+
+model Prompt {
+  id         Int          @id @default(autoincrement())
+  prompt     String
+  model      String
+  messageId  String?
+  message    Message?     @relation(fields: [messageId], references: [id])
+  Completion Completion[]
 }
 
 model Completion {
   id             Int           @id @default(autoincrement())
-  prompt         String
+  promptId       Int?
   completion     String
   conversationId String?
   conversation   Conversation? @relation(fields: [conversationId], references: [id])
   messageId      String?
   message        Message?      @relation(fields: [messageId], references: [id])
+  Prompt         Prompt?       @relation(fields: [promptId], references: [id])
 }
 
 model Event {

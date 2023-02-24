@@ -9,8 +9,6 @@ import { ChatgptModel } from './chatgpt.model';
 import { randomUUID } from 'node:crypto';
 import { ChatgptResponse } from './chatgpt.response';
 import { encode } from 'gpt-3-encoder';
-import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
-import { MessageService } from 'src/boundary-context/message/message.service';
 
 export interface ChatgptLargeLanguageModelOptions
   extends LargeLanguageModelOptions {

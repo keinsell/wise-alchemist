@@ -1,24 +1,24 @@
 import type { ArgsOf, Client } from 'discordx';
-import { Discord, On } from 'discordx';
 import { ChannelType } from 'discord.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { AccountService } from 'src/boundary-context/account/account.service';
-import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
 import { MessageService } from 'src/boundary-context/message/message.service';
-import { InjectQueue } from '@nestjs/bull';
-import { Queue } from 'bull';
-import { LargeLanguageModelCompleteTask } from 'src/boundary-context/completion/processors/complete.consumer';
-import { ChatgptModel } from 'src/boundary-context/completion/providers/content-generation/chatgpt/chatgpt.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MessageAuthorizedEvent } from 'src/boundary-context/message/events/message-authorized/message-authorized.event';
+import { GetConversationByDiscordChannelUsecase } from 'src/boundary-context/conversation/usecase/get-conversation-by-discord-channel/get-conversation-by-discord-channel.usecase';
+import { isLeft } from 'fp-ts/lib/Either';
+import { Conversation } from '@prisma/client';
+import { OpenConversationByDiscordChannelUsecase } from 'src/boundary-context/conversation/usecase/open-conversation-by-discord-channel/open-conversation-by-discord-channel.usecase';
+import { Exception } from 'src/shared/domain-error';
 
 @Injectable()
 export class DiscordOnMessageEvent {
   constructor(
     private accountService: AccountService,
-    private conversationService: ConversationService,
     private messageService: MessageService,
     private eventEmitter: EventEmitter2, // @InjectQueue('large_language_model.complete') // private audioQueue: Queue<LargeLanguageModelCompleteTask>,
+    private getConversation: GetConversationByDiscordChannelUsecase,
+    private openConversation: OpenConversationByDiscordChannelUsecase,
   ) {}
   private logger = new Logger('discord.on-message.event');
 
@@ -53,15 +53,32 @@ export class DiscordOnMessageEvent {
 
     this.logger.log(`Message ${message.id} authorized.`);
 
-    // Start or find a conversation in the database
+    // Find an existing conversation in our system for given discord channel
+    // If one conversation is not found, we're using account of user to create
+    // a new one and associate it to discord channel.
 
-    const conversation =
-      await this.conversationService.findOrCreateConversationByDiscordChannelId(
-        account,
-        message.channel.id,
-      );
+    let conversation: Conversation;
 
-    this.logger.log(`Found conversation ${conversation.id}.`);
+    const isConversation = await this.getConversation.execute(
+      message.channel.id,
+    );
+
+    if (isLeft(isConversation)) {
+      this.logger.error(isConversation.left);
+
+      const createdConversationResult = await this.openConversation.execute({
+        channelId: message.channel.id,
+        accountId: account.id,
+      });
+
+      if (isLeft(createdConversationResult)) {
+        throw new Exception('Cannot open conversation.');
+      }
+
+      conversation = createdConversationResult.right;
+    } else {
+      conversation = isConversation.right;
+    }
 
     // Construct new message
 
