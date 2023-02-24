@@ -2,7 +2,7 @@ import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import {
   LargeLanguageModelOptions,
   LargeLanguageModelProvider,
-} from '../../large-language-model.provider';
+} from '../../../adapters/providers/content-generation/large-language-model.provider';
 import { Injectable, Logger } from '@nestjs/common';
 import { Message } from '@prisma/client';
 import { ChatgptModel } from './chatgpt.model';
@@ -24,11 +24,7 @@ export class ChatgptLargeLanguageModelService
   private logger = new Logger(ChatgptLargeLanguageModelService.name);
   private readonly authorizationHeader: string;
   private readonly cookies: string;
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly messageService: MessageService,
-    private readonly conversationService: ConversationService,
-  ) {
+  constructor(private readonly prismaService: PrismaService) {
     if (!process.env.CHATGPT_AUTH_TOKEN || !process.env.CHATGPT_COOKIES) {
       this.logger.error('Could not find CHATGPT_* environment variables.');
       process.exit(1);
@@ -37,38 +33,17 @@ export class ChatgptLargeLanguageModelService
     this.authorizationHeader = process.env.CHATGPT_AUTH_TOKEN;
     this.cookies = process.env.CHATGPT_COOKIES;
   }
+
   async promptMessage(
     message: string,
     options?: ChatgptLargeLanguageModelOptions,
   ): Promise<Message> {
     // Extract core information from options
-    let conversationId = options?.conversation.external_id;
     let model = options?.model;
     let messageId = randomUUID();
 
-    let parentMessageId = undefined;
-
-    // Find parentmessageId with conversationId
-    if (conversationId) {
-      const parentMessage = await this.prismaService.message.findFirst({
-        where: {
-          conversation_id: conversationId,
-          author: 'SYSTEM',
-        },
-        orderBy: {
-          timestamp: 'desc',
-        },
-      });
-
-      if (parentMessage && parentMessage.external_id) {
-        parentMessageId = parentMessage.external_id;
-      }
-    }
-
-    // If parntMessageId is missing generate a new one with uuid
-    if (!parentMessageId) {
-      parentMessageId = randomUUID();
-    }
+    let parentMessageId = await this.getParentMessageIdFromOptions(options);
+    let conversationId = await this.getConversationIdFromOptions(options);
 
     // If model is missing default to turbo
     if (!model) {
@@ -132,6 +107,13 @@ export class ChatgptLargeLanguageModelService
 
     if (result.length == 1) {
       const parsed = JSON.parse(result[0]) as { detail: string };
+      console.log(parsed);
+
+      const tooManyRequestsErrorMessage =
+        'Only one message at a time. Please allow any other responses to complete before sending another message, or wait one minute.';
+      const wrongConversationIdOrParentId =
+        'Something went wrong, please try reloading the conversation.';
+
       //   prompt.setFailedState();
       //   throw new InvalidChatgptResponse(parsed.detail);
     }
@@ -144,6 +126,112 @@ export class ChatgptLargeLanguageModelService
     const plainContent = parsedResponse.message.content.parts.join();
     const tokens = encode(plainContent);
 
-    // Find conversation by Id, if not found create one.
+    // Attach externalId to conversation if do not have any
+    if (!conversationId) {
+      conversationId = parsedResponse.conversation_id;
+
+      await this.prismaService.conversation.update({
+        where: {
+          id: options?.conversation.id,
+        },
+        data: {
+          external_id: conversationId,
+        },
+      });
+    }
+
+    // Find parent message which was used for generation
+    const parentMessage = await this.prismaService.message.findFirst({
+      where: {
+        conversation_id: options?.conversation.id,
+      },
+      orderBy: {
+        timestamp: 'desc',
+      },
+    });
+
+    // If parentMessage exist make it a reference for generation
+    if (parentMessage) {
+      this.logger.log(
+        `Reference found for ${messageId}: Parent message is ${parentMessage.id}`,
+      );
+
+      this.prismaService.message.update({
+        where: {
+          id: parentMessage.id,
+        },
+        data: {
+          external_id: parentMessageId,
+        },
+      });
+    }
+
+    // Create a new message with generation content
+
+    const generatedMessage = await this.prismaService.message.create({
+      data: {
+        external_id: messageId,
+        content: plainContent,
+        author: 'SYSTEM',
+        conversation: {
+          connect: {
+            external_id: conversationId,
+          },
+        },
+        tokenCount: tokens.length,
+        tokens: tokens,
+      },
+    });
+
+    console.log(generatedMessage);
+  }
+
+  public async getParentMessageIdFromOptions(
+    options?: ChatgptLargeLanguageModelOptions,
+  ): Promise<string> {
+    let parentMessageId = undefined;
+
+    // Check for provided conversation.
+    if (options?.conversation) {
+      // Fetch all messages in conversation and find latest message generated by system.
+      const message = await this.prismaService.message.findFirst({
+        select: { external_id: true },
+        where: {
+          conversation_id: options.conversation.id,
+        },
+        orderBy: {
+          timestamp: 'desc',
+        },
+      });
+
+      // If message was found, extract message externalId
+      if (message) parentMessageId = message.external_id;
+    }
+
+    // If no parentMessageId was found, generate an unique Id with uuid.
+    if (!parentMessageId) parentMessageId = randomUUID();
+
+    return parentMessageId;
+  }
+
+  public async getConversationIdFromOptions(
+    options?: ChatgptLargeLanguageModelOptions,
+  ): Promise<string | undefined> {
+    let conversationId = undefined;
+
+    if (options?.conversation) {
+      const conversation = await this.prismaService.conversation.findFirst({
+        select: { external_id: true },
+        where: {
+          id: options.conversation.id,
+        },
+      });
+
+      if (conversation) {
+        conversationId = conversation.external_id;
+      }
+    }
+
+    return conversationId;
   }
 }

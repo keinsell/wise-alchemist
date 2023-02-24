@@ -1,4 +1,4 @@
-# `completion/providers`
+# Module XYZ Providers
 
 This directory contains the providers (services) for the Module XYZ.
 
@@ -7,7 +7,6 @@ This directory contains the providers (services) for the Module XYZ.
 To install this module, run the following command:
 bash
 npm install
-
 ## Providers
 
 The following providers are included in this module:
@@ -23,10 +22,9 @@ typescript
 import { Provider1 } from './providers/provider1.provider';
 
 @Module({
-providers: [Provider1],
+  providers: [Provider1],
 })
 export class AppModule {}
-
 ### Provider 2
 
 Description of the provider.
@@ -38,10 +36,9 @@ typescript
 import { Provider2 } from './providers/provider2.provider';
 
 @Module({
-providers: [Provider2],
+  providers: [Provider2],
 })
 export class AppModule {}
-
 ## Contributing
 
 To contribute to this module, please follow these guidelines:

@@ -7,8 +7,8 @@ import { ConversationService } from 'src/boundary-context/conversation/conversat
 import { MessageService } from 'src/boundary-context/message/message.service';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
-import { LargeLanguageModelCompleteTask } from 'src/boundary-context/large-language-model/consumers/complete.consumer';
-import { ChatgptModel } from 'src/boundary-context/large-language-model/provider/chatgpt/chatgpt.model';
+import { LargeLanguageModelCompleteTask } from 'src/boundary-context/completion/processors/complete.consumer';
+import { ChatgptModel } from 'src/boundary-context/completion/providers/content-generation/chatgpt/chatgpt.model';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { MessageAuthorizedEvent } from 'src/boundary-context/message/events/message-authorized/message-authorized.event';
 
