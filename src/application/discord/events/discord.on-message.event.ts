@@ -5,6 +5,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AccountService } from 'src/boundary-context/account/account.service';
 import { ConversationService } from 'src/boundary-context/conversation/conversation.service';
 import { MessageService } from 'src/boundary-context/message/message.service';
+import { InjectQueue } from '@nestjs/bull';
+import { Queue } from 'bull';
 
 @Injectable()
 export class DiscordOnMessageEvent {
@@ -12,6 +14,7 @@ export class DiscordOnMessageEvent {
     private accountService: AccountService,
     private conversationService: ConversationService,
     private messageService: MessageService,
+    @InjectQueue('completion') private audioQueue: Queue,
   ) {}
   private logger = new Logger('discord.on-message.event');
 
@@ -23,6 +26,10 @@ export class DiscordOnMessageEvent {
     const isNotMentionedOnChannel = !message.mentions.has(client.user!.id);
     const isMessageSentByBot = message.author.bot;
     const isDirectMessage = message.channel.type === ChannelType.DM;
+
+    const job = await this.audioQueue.add('create', {
+      foo: 'bar',
+    });
 
     // Disallow responding to bot messages
     if (isMessageSentByBot) {
