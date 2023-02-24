@@ -1,7 +1,8 @@
+import { Message } from '@prisma/client';
 import { DomainEvent } from 'src/shared/domain-event';
 
 export interface MessageAuthorizedPayload {
-  messageId: string;
+  message: Message;
 }
 
 export class MessageAuthorizedEvent extends DomainEvent<MessageAuthorizedPayload> {

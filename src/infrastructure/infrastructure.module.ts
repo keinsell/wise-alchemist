@@ -8,6 +8,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AfterMessageAuthorizedCustomer } from 'src/boundary-context/prompt/consumers/after.message-authorized.customer';
 import { EventStorageConsumer } from './event-storage/event-storage.consumer';
 import { EventStorageModule } from './event-storage/event-storage.module';
+import { PromptModule } from 'src/boundary-context/prompt/infrastructure/prompt.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EventStorageModule } from './event-storage/event-storage.module';
     PrismaModule,
     DiscordModule,
     LargeLanguageModelModule,
+    PromptModule,
     EventStorageModule,
     BullModule.forRoot({
       redis: {
@@ -26,6 +28,6 @@ import { EventStorageModule } from './event-storage/event-storage.module';
     }),
   ],
   controllers: [],
-  providers: [AfterMessageAuthorizedCustomer],
+  providers: [],
 })
 export class InfrastructureModule {}
