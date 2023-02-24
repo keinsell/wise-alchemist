@@ -8,6 +8,7 @@ import { encode } from 'gpt-3-encoder';
 import { ContentGenerationProvider } from 'src/boundary-context/completion/adapters/providers/content-generation/content-generation.provider';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { CompletionGeneratedEvent } from 'src/boundary-context/completion/events/completion-generated/completion-generated.event';
+import { MessageCreatedEvent } from 'src/boundary-context/message/events/message-created/message-created.event';
 
 @Injectable()
 export class ChatgptLargeLanguageModelService
@@ -151,7 +152,7 @@ export class ChatgptLargeLanguageModelService
       parentMessageId,
     );
 
-    await this.prismaService.message.create({
+    const createdMessage = await this.prismaService.message.create({
       data: {
         external_id: messageId,
         author: 'SYSTEM',
@@ -175,6 +176,11 @@ export class ChatgptLargeLanguageModelService
           promptWithConversationAndMessage.message.conversation,
         generationMade: generation,
       }),
+    );
+
+    this.publisher.emit(
+      'message.created',
+      new MessageCreatedEvent({ message: createdMessage }),
     );
   }
 

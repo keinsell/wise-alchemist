@@ -6,10 +6,15 @@ import { ConversationModule } from 'src/boundary-context/conversation/infrastruc
 import { PrismaModule } from 'src/infrastructure/prisma/prisma.module';
 import { MessageModule } from 'src/boundary-context/message/infrastructure/message.module';
 import { BullModule } from '@nestjs/bull';
+import { AfterMessageCreatedConsumer } from './conusmers/after.message-created.consumer';
 
 @Module({
-  imports: [AccountModule, ConversationModule, MessageModule],
+  imports: [AccountModule, ConversationModule, MessageModule, PrismaModule],
   exports: [DiscordService],
-  providers: [DiscordService, DiscordOnMessageEvent],
+  providers: [
+    DiscordService,
+    DiscordOnMessageEvent,
+    AfterMessageCreatedConsumer,
+  ],
 })
 export class DiscordModule {}
