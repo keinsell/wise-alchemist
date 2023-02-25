@@ -6,7 +6,7 @@ import { PromptCreatedEvent } from 'src/boundary-context/prompt/events/prompt-cr
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import { DiscordService } from '../discord.service';
 import { MessageCreatedEvent } from 'src/boundary-context/message/events/message-created/message-created.event';
-import { TextChannel } from 'discord.js';
+import { DMChannel, Message as DiscordMessage, TextChannel } from 'discord.js';
 
 @Injectable()
 export class AfterMessageCreatedConsumer {
@@ -21,10 +21,94 @@ export class AfterMessageCreatedConsumer {
       select: { id: true, discord_channel_id: true },
     });
 
+    const parentMessageQuery = await this.prisma.message.findUnique({
+      where: { id: event.payload.message.id },
+      select: {
+        Prompt: {
+          select: {
+            message: { select: { id: true, discord_message_id: true } },
+          },
+        },
+      },
+    });
+
+    const parentMessageDiscordId =
+      parentMessageQuery?.Prompt[0]?.message?.discord_message_id[0] ??
+      undefined;
+
     const channel = (await this.discord.channels.fetch(
       conversation.discord_channel_id,
     )) as TextChannel;
 
-    await channel.send(event.payload.message.content);
+    const chunks = this.splitMessage(event.payload.message.content);
+
+    for (let chunk of chunks) {
+      const message = await this.sendMessageToDiscordChannelId(
+        channel.id,
+        chunk,
+        parentMessageDiscordId,
+      );
+
+      await this.addDiscordMessageToMessage(message, event.payload.message.id);
+    }
+  }
+
+  private splitMessage(message: string) {
+    const MAX_LENGTH = 2000;
+    const chunks: string[] = [];
+    let currentChunk = '';
+    let currentLength = 0;
+    for (let line of message.split('\n')) {
+      if (currentLength + line.length > MAX_LENGTH) {
+        chunks.push(currentChunk);
+        currentChunk = '';
+        currentLength = 0;
+      }
+      currentChunk += line + '\n';
+      currentLength += line.length + 1;
+    }
+    if (currentLength > 0) {
+      chunks.push(currentChunk);
+    }
+    return chunks;
+  }
+
+  private async sendMessageToDiscordChannelId(
+    channelId: string,
+    message: string,
+    replyToId?: string,
+  ): Promise<DiscordMessage> {
+    const channel = await this.discord.channels.fetch(channelId);
+
+    if (!channel) return;
+
+    // Handle sending messages in DMs
+    if (channel.isDMBased()) {
+      const dmChannel = channel as unknown as DMChannel;
+      return await dmChannel.send(message);
+    }
+
+    // Handle sending messages in channels
+    if (channel.isTextBased()) {
+      const textChannel = channel as unknown as TextChannel;
+      return await textChannel.send({
+        reply: replyToId ? { messageReference: replyToId } : undefined,
+        content: message,
+      });
+    }
+  }
+
+  private async addDiscordMessageToMessage(
+    message: DiscordMessage,
+    messageId: string,
+  ) {
+    await this.prisma.message.update({
+      where: { id: messageId },
+      data: {
+        discord_message_id: {
+          push: message.id,
+        },
+      },
+    });
   }
 }
