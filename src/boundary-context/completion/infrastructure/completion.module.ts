@@ -4,12 +4,17 @@ import { ChatgptLargeLanguageModelService } from '../providers/content-generatio
 import { CompletionProcessor } from '../processors/completion.processor';
 import { BullModule } from '@nestjs/bull';
 import { AfterPromptCreatedConsumer } from '../consumers/after.prompt-created.consumer';
+import ms from 'ms';
 
 @Module({
   imports: [
     PrismaModule,
     BullModule.registerQueue({
       name: 'completion',
+      limiter: {
+        max: 45,
+        duration: ms('1h'),
+      },
     }),
   ],
   providers: [
@@ -21,6 +26,10 @@ import { AfterPromptCreatedConsumer } from '../consumers/after.prompt-created.co
     CompletionProcessor,
     BullModule.registerQueue({
       name: 'completion',
+      limiter: {
+        max: 45,
+        duration: ms('1h'),
+      },
     }),
     AfterPromptCreatedConsumer,
   ],
