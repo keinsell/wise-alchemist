@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { IntentsBitField, Interaction, Message, Partials } from 'discord.js';
 import { Client, ILogger } from 'discordx';
-import { DiscordOnMessageEvent } from './events/discord.on-message.event';
+import { DiscordOnMessageEvent } from './listeners/discord.on-message.listener';
 
 export class DiscordxLogger implements ILogger {
   private logger = new Logger('discordx');

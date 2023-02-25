@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { DiscordService } from './discord.service';
-import { DiscordOnMessageEvent } from './events/discord.on-message.event';
+import { DiscordOnMessageEvent } from './listeners/discord.on-message.listener';
 import { AccountModule } from 'src/boundary-context/account/account.module';
 import { ConversationModule } from 'src/boundary-context/conversation/infrastructure/conversation.module';
 import { PrismaModule } from 'src/infrastructure/prisma/prisma.module';
