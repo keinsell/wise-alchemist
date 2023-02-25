@@ -185,7 +185,10 @@ export class ChatgptLargeLanguageModelService
 
     this.publisher.emit(
       'message.created',
-      new MessageCreatedEvent({ message: createdMessage }),
+      new MessageCreatedEvent({
+        message: createdMessage,
+        previousMessageId: prompt.messageId,
+      }),
     );
   }
 

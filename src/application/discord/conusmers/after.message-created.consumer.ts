@@ -14,27 +14,16 @@ export class AfterMessageCreatedConsumer {
 
   @OnEvent('message.created')
   async afterPromptCreated(event: MessageCreatedEvent) {
-    // TODO: Check if message is Discord message.
-
     const conversation = await this.prisma.conversation.findUnique({
       where: { id: event.payload.message.conversation_id },
       select: { id: true, discord_channel_id: true },
     });
 
     const parentMessageQuery = await this.prisma.message.findUnique({
-      where: { id: event.payload.message.id },
-      include: {
-        Prompt: {
-          include: {
-            message: true,
-          },
-        },
-      },
+      where: { id: event.payload.previousMessageId },
     });
 
-    const parentMessageDiscordId =
-      parentMessageQuery?.Prompt[0]?.message?.discord_message_id[0] ??
-      undefined;
+    const parentMessageDiscordId = parentMessageQuery?.discord_message_id[0];
 
     const channel = (await this.discord.channels.fetch(
       conversation.discord_channel_id,

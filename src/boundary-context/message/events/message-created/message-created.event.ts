@@ -1,7 +1,8 @@
-import { Message } from '@prisma/client';
+import { Completion, Message } from '@prisma/client';
 import { DomainEvent } from 'src/shared/domain-event';
 
 export interface MessageCreatedPayload {
+  previousMessageId: string;
   message: Message;
 }
 
