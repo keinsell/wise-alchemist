@@ -147,10 +147,10 @@ export class ChatgptLargeLanguageModelService
       conversationId,
     );
 
-    await this.updateIdOfParentMessageSendByUser(
-      promptWithConversationAndMessage.message,
-      parentMessageId,
-    );
+    // await this.updateIdOfParentMessageSendByUser(
+    //   promptWithConversationAndMessage.message,
+    //   parentMessageId,
+    // );
 
     const createdMessage = await this.prismaService.message.create({
       data: {
@@ -205,12 +205,12 @@ export class ChatgptLargeLanguageModelService
     if (!parentMessageId) {
       parentMessageId = randomUUID();
 
-      if (message) {
-        await this.prismaService.message.update({
-          where: { id: message.id },
-          data: { external_id: parentMessageId },
-        });
-      }
+      // if (message) {
+      //   await this.prismaService.message.update({
+      //     where: { id: message.id },
+      //     data: { external_id: parentMessageId },
+      //   });
+      // }
     }
 
     return parentMessageId;
