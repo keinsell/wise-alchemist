@@ -10,11 +10,7 @@ import { TextChannel } from 'discord.js';
 
 @Injectable()
 export class AfterMessageCreatedConsumer {
-  constructor(
-    private publisher: EventEmitter2,
-    private discord: DiscordService,
-    private prisma: PrismaService,
-  ) {}
+  constructor(private discord: DiscordService, private prisma: PrismaService) {}
 
   @OnEvent('message.created')
   async afterPromptCreated(event: MessageCreatedEvent) {

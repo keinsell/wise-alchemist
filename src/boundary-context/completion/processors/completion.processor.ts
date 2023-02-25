@@ -10,6 +10,9 @@ import {
   ContentGenerationProviderType,
 } from '../configuration/model-selection.configuration';
 import { ContentGenerationProvider } from '../adapters/providers/content-generation/content-generation.provider';
+import { DiscordStartTypingEvent } from 'src/application/discord/events/discord-start-typing/discord-start-typing.event';
+import { DiscordStopTypingEvent } from 'src/application/discord/events/discord-stop-typing/discord-stop-typing.event';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 export interface CompletionTask {
   promptId: number;
@@ -29,6 +32,7 @@ export class CompletionProcessor {
   constructor(
     private prismaService: PrismaService,
     private chatgpt: ChatgptLargeLanguageModelService,
+    private publisher: EventEmitter2,
   ) {}
 
   @Process()
@@ -38,7 +42,38 @@ export class CompletionProcessor {
       where: {
         id: job.data.prompt.id,
       },
+      include: {
+        message: {
+          include: {
+            conversation: {
+              select: {
+                discord_channel_id: true,
+              },
+            },
+          },
+        },
+      },
     });
+
+    let discordStartTypingEvent: DiscordStartTypingEvent;
+    let discordStopTypingEvent: DiscordStopTypingEvent;
+
+    if (prompt?.message?.conversation?.discord_channel_id) {
+      discordStartTypingEvent = new DiscordStartTypingEvent({
+        channelId: prompt.message.conversation.discord_channel_id,
+      });
+      discordStopTypingEvent = new DiscordStopTypingEvent({
+        channelId: prompt.message.conversation.discord_channel_id,
+      });
+    }
+
+    // Start typing
+    if (discordStartTypingEvent) {
+      this.publisher.emit(
+        DiscordStartTypingEvent.EVENT_NAME,
+        discordStartTypingEvent,
+      );
+    }
 
     // Find right provider for provided model, and if model doesn't exist
     // in our system as supported one, move job to failed.
@@ -46,6 +81,13 @@ export class CompletionProcessor {
     const isModelAvailable = AvailableModels[model];
 
     if (!isModelAvailable) {
+      if (discordStopTypingEvent) {
+        this.publisher.emit(
+          DiscordStopTypingEvent.EVENT_NAME,
+          discordStopTypingEvent,
+        );
+      }
+
       throw new Error('model is not supported');
     }
 
@@ -61,6 +103,13 @@ export class CompletionProcessor {
 
     // If we can't find a provider, move job to failed.
     if (!provider) {
+      if (discordStopTypingEvent) {
+        this.publisher.emit(
+          DiscordStopTypingEvent.EVENT_NAME,
+          discordStopTypingEvent,
+        );
+      }
+
       throw new Error('no provider available');
     }
 
@@ -68,8 +117,23 @@ export class CompletionProcessor {
       await provider.prompt(prompt);
     } catch (error) {
       this.logger.error(error);
+
+      if (discordStopTypingEvent) {
+        this.publisher.emit(
+          DiscordStopTypingEvent.EVENT_NAME,
+          discordStopTypingEvent,
+        );
+      }
+
       await job.moveToFailed(error);
       await job.retry();
+    }
+
+    if (discordStopTypingEvent) {
+      this.publisher.emit(
+        DiscordStopTypingEvent.EVENT_NAME,
+        discordStopTypingEvent,
+      );
     }
   }
 

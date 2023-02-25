@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheModule, Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import { DiscordModule } from '../application/discord/discord.application.module';
 import { BullModule } from '@nestjs/bull';
@@ -12,6 +12,7 @@ import * as redisurl from 'redis-url';
 
 @Module({
   imports: [
+    CacheModule.register({ isGlobal: true }),
     EventEmitterModule.forRoot({
       wildcard: true,
     }),
