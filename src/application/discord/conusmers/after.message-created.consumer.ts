@@ -71,6 +71,20 @@ export class AfterMessageCreatedConsumer {
 
     if (!channel) return;
 
+    // When replying to messages, we should check for existance of message before
+    // we'll reply, as replying to deleted messages causes an error.
+    // https://github.com/keinsell/wise-alchemist/issues/12
+
+    let isReplyAllowed: boolean = false;
+
+    if (replyToId) {
+      const textChannel = channel as TextChannel;
+      const isMessage = await textChannel.messages.fetch(replyToId);
+      if (isMessage) {
+        isReplyAllowed = true;
+      }
+    }
+
     // Handle sending messages in DMs
     if (channel.isDMBased()) {
       const dmChannel = channel as unknown as DMChannel;
@@ -81,7 +95,10 @@ export class AfterMessageCreatedConsumer {
     if (channel.isTextBased()) {
       const textChannel = channel as unknown as TextChannel;
       return await textChannel.send({
-        reply: replyToId ? { messageReference: replyToId } : undefined,
+        reply:
+          replyToId && isReplyAllowed
+            ? { messageReference: replyToId }
+            : undefined,
         content: message,
       });
     }
