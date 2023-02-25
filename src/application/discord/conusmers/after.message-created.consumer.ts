@@ -68,6 +68,7 @@ export class AfterMessageCreatedConsumer {
     replyToId?: string,
   ): Promise<DiscordMessage> {
     const channel = await this.discord.channels.fetch(channelId);
+    const textChannel = channel as TextChannel;
 
     if (!channel) return;
 
@@ -78,10 +79,11 @@ export class AfterMessageCreatedConsumer {
     let isReplyAllowed: boolean = false;
 
     if (replyToId) {
-      const textChannel = channel as TextChannel;
-      const isMessage = await textChannel.messages.fetch(replyToId);
-      if (isMessage) {
+      try {
+        await textChannel.messages.fetch(replyToId);
         isReplyAllowed = true;
+      } catch (e) {
+        isReplyAllowed = false;
       }
     }
 
@@ -96,7 +98,7 @@ export class AfterMessageCreatedConsumer {
       const textChannel = channel as unknown as TextChannel;
       return await textChannel.send({
         reply:
-          replyToId && isReplyAllowed
+          !!replyToId && isReplyAllowed
             ? { messageReference: replyToId }
             : undefined,
         content: message,
