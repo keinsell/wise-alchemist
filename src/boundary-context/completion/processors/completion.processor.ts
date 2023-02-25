@@ -1,6 +1,13 @@
-import { JOB_REF, OnQueueActive, Process, Processor } from '@nestjs/bull';
+import {
+  InjectQueue,
+  JOB_REF,
+  OnQueueActive,
+  OnQueueFailed,
+  Process,
+  Processor,
+} from '@nestjs/bull';
 import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
-import { Job } from 'bull';
+import Bull, { Job } from 'bull';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import { ChatgptModel } from '../providers/content-generation/chatgpt/chatgpt.model';
 import { ChatgptLargeLanguageModelService } from '../providers/content-generation/chatgpt/chatgpt.large-language-model.service';
@@ -13,6 +20,7 @@ import { ContentGenerationProvider } from '../adapters/providers/content-generat
 import { DiscordStartTypingEvent } from 'src/application/discord/events/discord-start-typing/discord-start-typing.event';
 import { DiscordStopTypingEvent } from 'src/application/discord/events/discord-stop-typing/discord-stop-typing.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import ms from 'ms';
 
 export interface CompletionTask {
   promptId: number;
@@ -33,6 +41,7 @@ export class CompletionProcessor {
     private prismaService: PrismaService,
     private chatgpt: ChatgptLargeLanguageModelService,
     private publisher: EventEmitter2,
+    @InjectQueue('completion') private completionQueue: Bull.Queue,
   ) {}
 
   @Process()
@@ -126,7 +135,6 @@ export class CompletionProcessor {
       }
 
       await job.moveToFailed(error);
-      await job.retry();
     }
 
     if (discordStopTypingEvent) {
@@ -144,5 +152,33 @@ export class CompletionProcessor {
         job.data,
       )}...`,
     );
+  }
+
+  @OnQueueFailed()
+  async onFailed(job: Job, error: Error) {
+    this.logger.error(
+      `Job ${job.id} failed with message: ${error.message}`,
+      error.stack,
+    );
+
+    job.attemptsMade++;
+
+    if (job.attemptsMade > 3) {
+      return;
+    }
+
+    const delay = ms('1m') * Math.pow(2, job.attemptsMade);
+
+    this.logger.debug(
+      `Will retry job ${job.id} in ${ms(delay, {
+        long: true,
+      })} (attempt ${job.attemptsMade} of 3)...`,
+    );
+
+    this.logger.debug(`Adding job ${job.id} to completion queue...`);
+
+    await this.completionQueue.add(job.data, {
+      delay,
+    });
   }
 }
