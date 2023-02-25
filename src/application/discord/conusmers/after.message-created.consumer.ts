@@ -23,10 +23,10 @@ export class AfterMessageCreatedConsumer {
 
     const parentMessageQuery = await this.prisma.message.findUnique({
       where: { id: event.payload.message.id },
-      select: {
+      include: {
         Prompt: {
-          select: {
-            message: { select: { id: true, discord_message_id: true } },
+          include: {
+            message: true,
           },
         },
       },

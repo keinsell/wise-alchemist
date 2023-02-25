@@ -164,6 +164,11 @@ export class ChatgptLargeLanguageModelService
             id: promptWithConversationAndMessage.message.conversation.id,
           },
         },
+        Prompt: {
+          connect: {
+            id: prompt.id,
+          },
+        },
       },
     });
 
