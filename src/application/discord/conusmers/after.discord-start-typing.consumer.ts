@@ -30,7 +30,7 @@ export class AfterDiscordStartTypingConsumer {
 
     while (await this.cacheManager.get(`typing-${event.payload.channelId}`)) {
       await textChannel.sendTyping();
-      await delay(ms('10s'));
+      await delay(ms('9.5s'));
     }
   }
 }
