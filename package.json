@@ -67,7 +67,7 @@
     "@types/jest": "29.2.4",
     "@types/keyv": "^4.2.0",
     "@types/ms": "^0.7.31",
-    "@types/node": "18.11.18",
+    "@types/node": "18.14.2",
     "@types/nodemon": "^1.19.2",
     "@types/prettier": "^2.7.2",
     "@types/signale": "^1.4.4",
