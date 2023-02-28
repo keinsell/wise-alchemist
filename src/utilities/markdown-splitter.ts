@@ -1,5 +1,7 @@
 import { marked } from 'marked';
+import TurndownService from 'turndown';
 
+const turndown = new TurndownService();
 export function MessageSplitter(message: string): string[] {
   const html = marked(message);
   const blocks = html.split(/(?<=<\/?(?:pre|p)>)/); // split on opening tag of each block
@@ -44,6 +46,6 @@ export function MessageSplitter(message: string): string[] {
     }
   }
 
-  messages.push(marked(currentBlocks.join(''))); // add the final message to the array of messages
+  messages.push(turndown.turndown(currentBlocks.join(''))); // add the final message to the array of messages
   return messages;
 }
