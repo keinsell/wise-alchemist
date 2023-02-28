@@ -46,6 +46,14 @@ export function MessageSplitter(message: string): string[] {
     }
   }
 
-  messages.push(turndown.turndown(currentBlocks.join(''))); // add the final message to the array of messages
-  return messages;
+  messages.push(currentBlocks.join('')); // add the final message to the array of messages
+
+  const parsedMessages = [];
+
+  for (const message of messages) {
+    let parsedMessage = turndown.turndown(message);
+    parsedMessages.push(parsedMessage);
+  }
+
+  return parsedMessages;
 }
