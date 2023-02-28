@@ -7,6 +7,7 @@ import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import { DiscordService } from '../discord.service';
 import { MessageCreatedEvent } from 'src/boundary-context/message/events/message-created/message-created.event';
 import { DMChannel, Message as DiscordMessage, TextChannel } from 'discord.js';
+import { MessageSplitter } from 'src/utilities/markdown-splitter';
 
 @Injectable()
 export class AfterMessageCreatedConsumer {
@@ -43,23 +44,25 @@ export class AfterMessageCreatedConsumer {
   }
 
   private splitMessage(message: string) {
-    const MAX_LENGTH = 2000;
-    const chunks: string[] = [];
-    let currentChunk = '';
-    let currentLength = 0;
-    for (let line of message.split('\n')) {
-      if (currentLength + line.length > MAX_LENGTH) {
-        chunks.push(currentChunk);
-        currentChunk = '';
-        currentLength = 0;
-      }
-      currentChunk += line + '\n';
-      currentLength += line.length + 1;
-    }
-    if (currentLength > 0) {
-      chunks.push(currentChunk);
-    }
-    return chunks;
+    // const MAX_LENGTH = 2000;
+    // const chunks: string[] = [];
+    // let currentChunk = '';
+    // let currentLength = 0;
+    // for (let line of message.split('\n')) {
+    //   if (currentLength + line.length > MAX_LENGTH) {
+    //     chunks.push(currentChunk);
+    //     currentChunk = '';
+    //     currentLength = 0;
+    //   }
+    //   currentChunk += line + '\n';
+    //   currentLength += line.length + 1;
+    // }
+    // if (currentLength > 0) {
+    //   chunks.push(currentChunk);
+    // }
+    // return chunks;
+
+    return MessageSplitter(message);
   }
 
   private async sendMessageToDiscordChannelId(
