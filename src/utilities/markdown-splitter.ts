@@ -14,7 +14,7 @@ export function MessageSplitter(message: string): string[] {
     const blockLength = block.length;
     if (currentLength + blockLength > 2000) {
       // adding this block will make the message too long
-      messages.push(currentBlocks.join('')); // add the current message to the array of messages
+      messages.push(turndown.turndown(currentBlocks.join(''))); // add the current message to the array of messages
       currentMessage = '';
       currentLength = 0;
       currentBlocks = [];
@@ -25,7 +25,7 @@ export function MessageSplitter(message: string): string[] {
       let closingTagIndex = blocks.indexOf(`</pre>${block}`, 1); // find the closing tag of the code block
       if (closingTagIndex === -1) {
         // closing tag not found, so add the current block and move on
-        currentBlocks.push(block);
+        currentBlocks.push(turndown.turndown(block));
         currentMessage += block;
         currentLength += blockLength;
         continue;
@@ -35,12 +35,12 @@ export function MessageSplitter(message: string): string[] {
       for (let i = blocks.indexOf(block); i < closingTagIndex; i++) {
         codeBlock += blocks[i];
       }
-      currentBlocks.push(codeBlock);
+      currentBlocks.push(turndown.turndown(codeBlock));
       currentMessage += codeBlock;
       currentLength += codeBlock.length;
     } else {
       // this block is not a code block, so add it to the current message
-      currentBlocks.push(block);
+      currentBlocks.push(turndown.turndown(block));
       currentMessage += block;
       currentLength += blockLength;
     }
