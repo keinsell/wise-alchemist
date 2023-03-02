@@ -68,7 +68,7 @@ specifiers:
   ts-jest: 29.0.3
   ts-loader: ^9.2.3
   ts-node: ^10.9.1
-  tsconfig-paths: 4.1.1
+  tsconfig-paths: 4.1.2
   turbo: ^1.7.0
   turndown: ^7.1.1
   typescript: 4.9.5
@@ -148,7 +148,7 @@ devDependencies:
   ts-jest: 29.0.3_hfbqr3rujuziiw7lzul6vua4r4
   ts-loader: 9.4.2_hhrrucqyg4eysmfpujvov2ym5u
   ts-node: 10.9.1_ellgaeuoqnti3hful2ny2iugba
-  tsconfig-paths: 4.1.1
+  tsconfig-paths: 4.1.2
   turbo: 1.8.1
   typescript: 4.9.5
 
@@ -6350,15 +6350,6 @@ packages:
       chalk: 4.1.2
       enhanced-resolve: 5.12.0
       tsconfig-paths: 4.1.2
-    dev: true
-
-  /tsconfig-paths/4.1.1:
-    resolution: {integrity: sha512-VgPrtLKpRgEAJsMj5Q/I/mXouC6A/7eJ/X4Nuk6o0cRPwBtznYxTCU4FodbexbzH9somBPEXYi0ZkUViUpJ21Q==}
-    engines: {node: '>=6'}
-    dependencies:
-      json5: 2.2.3
-      minimist: 1.2.8
-      strip-bom: 3.0.0
     dev: true
 
   /tsconfig-paths/4.1.2:
