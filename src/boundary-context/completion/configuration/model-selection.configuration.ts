@@ -3,7 +3,7 @@ import { ChatgptModel } from '../providers/content-generation/chatgpt/chatgpt.mo
 export enum ContentGenerationProviderType {
   chatgpt = 'chatgpt',
   //   edgegpt = 'edgegpt',
-  //   openai = 'openai',
+  openai = 'openai',
 }
 
 export const AvailableModels: {
@@ -11,4 +11,5 @@ export const AvailableModels: {
 } = {
   [ChatgptModel.turbo]: ContentGenerationProviderType.chatgpt,
   [ChatgptModel.normal]: ContentGenerationProviderType.chatgpt,
+  ['gpt-3.5-turbo']: ContentGenerationProviderType.openai,
 };

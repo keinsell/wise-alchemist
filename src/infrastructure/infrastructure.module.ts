@@ -1,6 +1,6 @@
 import { CacheModule, Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
-import { DiscordModule } from '../application/discord/discord.application.module';
+import { DiscordModule } from '../application/discord/infra/discord.application.module';
 import { BullModule } from '@nestjs/bull';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AfterMessageAuthorizedCustomer } from 'src/boundary-context/prompt/consumers/after.message-authorized.consumer';

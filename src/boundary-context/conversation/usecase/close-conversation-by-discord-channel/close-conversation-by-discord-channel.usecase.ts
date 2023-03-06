@@ -29,9 +29,6 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
     const conversation = await this.prisma.conversation.findFirst({
       where: {
         discord_channel_id: request.channelId,
-        // account: {
-        //   discord_id: request.accountId,
-        // },
         isArchived: false,
       },
       orderBy: {
@@ -53,13 +50,6 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
         isArchived: true,
       },
     });
-
-    // this.publisher.emit(
-    //   'conversation.started',
-    //   new ConversationStartedEvent({
-    //     conversationId: conversation.id,
-    //   }),
-    // );
 
     return this.success(convers);
   }

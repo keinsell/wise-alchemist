@@ -105,6 +105,7 @@ export class CompletionProcessor {
       [key in ContentGenerationProviderType]: ContentGenerationProvider;
     } = {
       [ContentGenerationProviderType.chatgpt]: this.chatgpt,
+      [ContentGenerationProviderType.openai]: undefined
     };
 
     // Find a provider responsible for provided model.
