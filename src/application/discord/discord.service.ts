@@ -5,8 +5,10 @@ import {
   Logger,
 } from '@nestjs/common';
 import { IntentsBitField, Interaction, Message, Partials } from 'discord.js';
-import { Client, ILogger } from 'discordx';
-import { DiscordOnMessageEvent } from './listeners/discord.on-message.listener';
+import { Client, DIService, ILogger } from 'discordx';
+import { NestDependencyRegistery } from './infra/nest-dependency-registery';
+import { ModuleRef } from '@nestjs/core';
+import { importx } from '@discordx/importer';
 
 export class DiscordxLogger implements ILogger {
   private logger = new Logger('discordx');
@@ -35,7 +37,8 @@ export class DiscordxLogger implements ILogger {
 @Injectable()
 export class DiscordService extends Client implements OnModuleInit {
   private readonly _logger = new Logger(DiscordService.name);
-  constructor(private onMessageCreateEvent: DiscordOnMessageEvent) {
+  constructor(private moduleRef: ModuleRef) {
+    DIService.engine = new NestDependencyRegistery(moduleRef);
     super({
       logger: new DiscordxLogger(),
       intents: [
@@ -61,6 +64,8 @@ export class DiscordService extends Client implements OnModuleInit {
   }
 
   async onModuleInit() {
+    await importx(__dirname + '../{listeners,commands}/**/*.{ts,js}');
+
     this.on('ready', async () => {
       // Make sure all guilds are cached
       await this.guilds.fetch();
@@ -71,7 +76,6 @@ export class DiscordService extends Client implements OnModuleInit {
       // To clear all guild commands, uncomment this line,
       // This is useful when moving from guild commands to global commands
       // It must only be executed once
-      //
       await this.clearApplicationCommands(
         ...this.guilds.cache.map((g) => g.id),
       );
@@ -84,7 +88,6 @@ export class DiscordService extends Client implements OnModuleInit {
 
     this.on('messageCreate', async (message: Message) => {
       this.executeCommand(message);
-      this.onMessageCreateEvent.messageCreate([message], this);
     });
 
     await this.login(process.env.BOT_TOKEN);

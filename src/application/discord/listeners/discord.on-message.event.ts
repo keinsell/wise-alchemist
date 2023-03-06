@@ -1,4 +1,4 @@
-import type { ArgsOf, Client } from 'discordx';
+import { ArgsOf, Client, Discord, On } from 'discordx';
 import { ChannelType } from 'discord.js';
 import { Injectable, Logger } from '@nestjs/common';
 import { AccountService } from 'src/boundary-context/account/account.service';
@@ -11,6 +11,7 @@ import { Conversation } from '@prisma/client';
 import { OpenConversationByDiscordChannelUsecase } from 'src/boundary-context/conversation/usecase/open-conversation-by-discord-channel/open-conversation-by-discord-channel.usecase';
 import { Exception } from 'src/shared/domain-error';
 
+@Discord()
 @Injectable()
 export class DiscordOnMessageEvent {
   constructor(
@@ -22,6 +23,7 @@ export class DiscordOnMessageEvent {
   ) {}
   private logger = new Logger('discord.on-message.event');
 
+  @On({ event: 'messageCreate' })
   async messageCreate(
     [message]: ArgsOf<'messageCreate'>,
     client: Client,
