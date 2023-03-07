@@ -11,13 +11,19 @@ export class DiscordConversationCommand {
   ) {}
   @Slash({ description: 'Close actual conversation.', name: 'close' })
   async close(interaction: CommandInteraction) {
-    const reply = await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ ephemeral: true });
 
     const conversation = await this.closeConversation.execute({
       channelId: interaction.channelId!,
       accountId: interaction.user.id,
     });
 
-    await interaction.editReply(`Conversation was closed`);
+    if (conversation._tag === 'Left') {
+      return await interaction.editReply(`Error: ${conversation.left.message}`);
+    }
+
+    await interaction.editReply(
+      `Conversation ${conversation.right.id} closed. Conversation contained ${conversation.right.messagesCount} messages and used ${conversation.right.tokensCount} tokens.`,
+    );
   }
 }
