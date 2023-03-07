@@ -39,8 +39,8 @@ export class DiscordService extends Client implements OnModuleInit {
   private readonly _logger = new Logger(DiscordService.name);
   constructor(private moduleRef: ModuleRef) {
     DIService.engine = new NestDependencyRegistery(moduleRef);
+
     super({
-      logger: new DiscordxLogger(),
       intents: [
         IntentsBitField.Flags.MessageContent,
         IntentsBitField.Flags.DirectMessageTyping,
@@ -54,7 +54,7 @@ export class DiscordService extends Client implements OnModuleInit {
 
       partials: [Partials.Channel, Partials.Message, Partials.Reaction],
 
-      silent: true,
+      silent: false,
 
       // Configuration for @SimpleCommand
       simpleCommand: {
@@ -64,21 +64,18 @@ export class DiscordService extends Client implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await importx(__dirname + '../{listeners,commands}/**/*.{ts,js}');
-
+    await importx(
+      __dirname + '/{listeners,commands}/**/*.{event,command}.{ts,js}',
+    );
     this.on('ready', async () => {
-      // Make sure all guilds are cached
       await this.guilds.fetch();
 
-      // Synchronize applications commands with Discord
       await this.initApplicationCommands();
 
-      // To clear all guild commands, uncomment this line,
-      // This is useful when moving from guild commands to global commands
-      // It must only be executed once
       await this.clearApplicationCommands(
         ...this.guilds.cache.map((g) => g.id),
       );
+
       this._logger.log('Successfully started Discord Application!');
     });
 

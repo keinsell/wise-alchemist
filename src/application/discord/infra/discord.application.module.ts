@@ -8,6 +8,7 @@ import { MessageModule } from 'src/boundary-context/message/infrastructure/messa
 import { AfterMessageCreatedConsumer } from '../conusmers/after.message-created.consumer';
 import { AfterDiscordStartTypingConsumer } from '../conusmers/after.discord-start-typing.consumer';
 import { AfterDiscordStopTypingConsumer } from '../conusmers/after.discord-stop-typing.consumer';
+import { DiscordConversationCommand } from '../commands/conversation.command';
 
 @Module({
   imports: [AccountModule, ConversationModule, MessageModule, PrismaModule],
@@ -15,6 +16,7 @@ import { AfterDiscordStopTypingConsumer } from '../conusmers/after.discord-stop-
   providers: [
     DiscordService,
     DiscordOnMessageEvent,
+    DiscordConversationCommand,
     AfterMessageCreatedConsumer,
     AfterDiscordStartTypingConsumer,
     AfterDiscordStopTypingConsumer,
