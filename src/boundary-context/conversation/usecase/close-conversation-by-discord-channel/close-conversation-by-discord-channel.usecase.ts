@@ -65,8 +65,6 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
       WHERE "Message"."conversation_id" = '${conversation.id}'
       `;
 
-    console.log(tokensCount);
-
     return this.success({
       id: closedConversation.id,
       messagesCount: messageCount,
