@@ -1,8 +1,8 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@commitlint/cli': 17.4.2
-  '@commitlint/config-conventional': 17.4.2
+  '@commitlint/cli': 17.4.4
+  '@commitlint/config-conventional': 17.4.4
   '@discordx/importer': ^1.1.10
   '@discordx/pagination': ^3.4.0
   '@keyv/redis': ^2.5.5
@@ -109,8 +109,8 @@ dependencies:
   webpack: 5.75.0
 
 devDependencies:
-  '@commitlint/cli': 17.4.2
-  '@commitlint/config-conventional': 17.4.2
+  '@commitlint/cli': 17.4.4
+  '@commitlint/config-conventional': 17.4.4
   '@nestjs/cli': 9.2.0
   '@nestjs/schematics': 9.0.4_typescript@4.9.5
   '@nestjs/testing': 9.3.9_yqmogfxzeu633isbftgaoi4ho4
@@ -606,8 +606,8 @@ packages:
     dev: true
     optional: true
 
-  /@commitlint/cli/17.4.2:
-    resolution: {integrity: sha512-0rPGJ2O1owhpxMIXL9YJ2CgPkdrFLKZElIZHXDN8L8+qWK1DGH7Q7IelBT1pchXTYTuDlqkOTdh//aTvT3bSUA==}
+  /@commitlint/cli/17.4.4:
+    resolution: {integrity: sha512-HwKlD7CPVMVGTAeFZylVNy14Vm5POVY0WxPkZr7EXLC/os0LH/obs6z4HRvJtH/nHCMYBvUBQhGwnufKfTjd5g==}
     engines: {node: '>=v14'}
     hasBin: true
     dependencies:
@@ -626,8 +626,8 @@ packages:
       - '@swc/wasm'
     dev: true
 
-  /@commitlint/config-conventional/17.4.2:
-    resolution: {integrity: sha512-JVo1moSj5eDMoql159q8zKCU8lkOhQ+b23Vl3LVVrS6PXDLQIELnJ34ChQmFVbBdSSRNAbbXnRDhosFU+wnuHw==}
+  /@commitlint/config-conventional/17.4.4:
+    resolution: {integrity: sha512-u6ztvxqzi6NuhrcEDR7a+z0yrh11elY66nRrQIpqsqW6sZmpxYkDLtpRH8jRML+mmxYQ8s4qqF06Q/IQx5aJeQ==}
     engines: {node: '>=v14'}
     dependencies:
       conventional-changelog-conventionalcommits: 5.0.0
@@ -2078,7 +2078,7 @@ packages:
       ajv:
         optional: true
     dependencies:
-      ajv: 8.11.0
+      ajv: 8.12.0
     dev: true
 
   /ajv-keywords/3.5.2_ajv@6.12.6:
