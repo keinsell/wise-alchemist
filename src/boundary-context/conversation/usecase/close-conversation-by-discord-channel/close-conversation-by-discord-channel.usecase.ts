@@ -7,6 +7,7 @@ import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
 import { Exception } from 'src/shared/domain-error';
 import { Usecase } from 'src/shared/domain-usecase';
 import { ConversationStartedEvent } from '../../events/conversation-started/conversation-started.event';
+import { CloseConversationByDiscordChannelResponse } from './close-conversation-by-discord-channel.response';
 
 interface CloseConversationByDiscordChannelPayload {
   channelId: string;
@@ -16,7 +17,7 @@ interface CloseConversationByDiscordChannelPayload {
 @Injectable()
 export class CloseConversationByDiscordChannelUsecase extends Usecase<
   CloseConversationByDiscordChannelPayload,
-  Conversation
+  CloseConversationByDiscordChannelResponse
 > {
   constructor(private prisma: PrismaService, private publisher: EventEmitter2) {
     super();
@@ -24,7 +25,7 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
 
   async execute(
     request: CloseConversationByDiscordChannelPayload,
-  ): Promise<Either<Exception, Conversation>> {
+  ): Promise<Either<Exception, CloseConversationByDiscordChannelResponse>> {
     // Find latest open conversation, on channel
     const conversation = await this.prisma.conversation.findFirst({
       where: {
@@ -42,7 +43,7 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
       );
     }
 
-    const convers = await this.prisma.conversation.update({
+    const closedConversation = await this.prisma.conversation.update({
       where: {
         id: conversation.id,
       },
@@ -51,6 +52,25 @@ export class CloseConversationByDiscordChannelUsecase extends Usecase<
       },
     });
 
-    return this.success(convers);
+    const messageCount = await this.prisma.message.count({
+      where: {
+        conversation_id: conversation.id,
+      },
+    });
+
+    // Execute Raw Query to Count Tokens in Conversation
+    const tokensCount = await this.prisma.$queryRaw<[{ sum: number | null }]>`
+      SELECT SUM("Message"."tokenCount")
+      FROM "Message"
+      WHERE "Message"."conversation_id" = '${conversation.id}'
+      `;
+
+    console.log(tokensCount);
+
+    return this.success({
+      id: closedConversation.id,
+      messagesCount: messageCount,
+      tokensCount: tokensCount[0].sum ?? 0,
+    });
   }
 }
