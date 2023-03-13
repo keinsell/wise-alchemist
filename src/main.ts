@@ -4,8 +4,6 @@ import * as Sentry from '@sentry/node';
 import { Integrations } from '@sentry/tracing';
 import { ProfilingIntegration } from '@sentry/profiling-node';
 import { PrismaService } from './infrastructure/prisma/prisma.infra';
-
-import '@sentry/tracing';
 import { SentryInterceptor } from './infrastructure/sentry/sentry.interceptor.js';
 
 async function bootstrap() {
