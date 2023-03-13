@@ -21,6 +21,7 @@ import { DiscordStartTypingEvent } from 'src/application/discord/events/discord-
 import { DiscordStopTypingEvent } from 'src/application/discord/events/discord-stop-typing/discord-stop-typing.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import ms from 'ms';
+import { captureException, startTransaction } from '@sentry/node';
 
 export interface CompletionTask {
   promptId: number;
@@ -105,7 +106,7 @@ export class CompletionProcessor {
       [key in ContentGenerationProviderType]: ContentGenerationProvider;
     } = {
       [ContentGenerationProviderType.chatgpt]: this.chatgpt,
-      [ContentGenerationProviderType.openai]: undefined
+      [ContentGenerationProviderType.openai]: undefined,
     };
 
     // Find a provider responsible for provided model.
@@ -123,9 +124,24 @@ export class CompletionProcessor {
       throw new Error('no provider available');
     }
 
+    const generationTransaction = startTransaction({
+      op: 'content-generation',
+      name: 'Content generation',
+      description: `Content generation for prompt ${prompt.id} using ${model} model`,
+      tags: {
+        user: prompt.message.author,
+      },
+    });
+
     try {
       await provider.prompt(prompt);
+      generationTransaction.finish();
     } catch (error) {
+      captureException(error);
+
+      generationTransaction.setTag('transaction_status', 'error');
+      generationTransaction.setStatus('error');
+
       this.logger.error(error);
 
       if (discordStopTypingEvent) {
