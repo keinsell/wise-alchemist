@@ -6,6 +6,7 @@ import { ProfilingIntegration } from '@sentry/profiling-node';
 import { PrismaService } from './infrastructure/prisma/prisma.infra';
 
 import '@sentry/tracing';
+import { SentryInterceptor } from './infrastructure/sentry/sentry.interceptor.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(InfrastructureModule);
@@ -20,6 +21,8 @@ async function bootstrap() {
       new Integrations.Prisma({ client: primsa }),
     ],
   });
+
+  app.useGlobalInterceptors(new SentryInterceptor());
 
   await app.listen(3000);
 }
