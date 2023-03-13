@@ -64,9 +64,7 @@ export class DiscordService extends Client implements OnModuleInit {
   }
 
   async onModuleInit() {
-    await importx(
-      __dirname + '/{listeners,commands}/**/*.{event,command}.{ts,js}',
-    );
+    await importx('./{listeners,commands}/**/*.{event,command}.{ts,js}');
     this.on('ready', async () => {
       await this.guilds.fetch();
 
