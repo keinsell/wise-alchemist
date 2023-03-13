@@ -135,7 +135,6 @@ export class CompletionProcessor {
 
     try {
       await provider.prompt(prompt);
-      generationTransaction.finish();
     } catch (error) {
       captureException(error);
 
@@ -152,6 +151,8 @@ export class CompletionProcessor {
       }
 
       await job.moveToFailed(error);
+    } finally {
+      generationTransaction.finish();
     }
 
     if (discordStopTypingEvent) {
