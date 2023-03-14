@@ -21,7 +21,7 @@ import { DiscordStartTypingEvent } from 'src/application/discord/events/discord-
 import { DiscordStopTypingEvent } from 'src/application/discord/events/discord-stop-typing/discord-stop-typing.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import ms from 'ms';
-import { captureException, startTransaction } from '@sentry/node';
+import { captureException, setUser, startTransaction } from "@sentry/node";
 
 export interface CompletionTask {
   promptId: number;
@@ -124,6 +124,10 @@ export class CompletionProcessor {
       throw new Error('no provider available');
     }
 
+    setUser({
+      id: prompt.message.author,
+    });
+
     const generationTransaction = startTransaction({
       op: 'content-generation',
       name: 'Content generation',
@@ -140,8 +144,6 @@ export class CompletionProcessor {
 
       generationTransaction.setTag('transaction_status', 'error');
       generationTransaction.setStatus('error');
-
-      this.logger.error(error);
 
       if (discordStopTypingEvent) {
         this.publisher.emit(
@@ -179,13 +181,17 @@ export class CompletionProcessor {
       error.stack,
     );
 
+    if (!job.attemptsMade) {
+      job.attemptsMade = 0;
+    }
+
     job.attemptsMade++;
 
     if (job.attemptsMade > 3) {
       return;
     }
 
-    const delay = ms('1m') * Math.pow(2, job.attemptsMade);
+    const delay = ms('1s') * Math.pow(2, job.attemptsMade);
 
     this.logger.debug(
       `Will retry job ${job.id} in ${ms(delay, {
