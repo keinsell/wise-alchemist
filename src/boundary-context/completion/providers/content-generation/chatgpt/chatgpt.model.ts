@@ -1,4 +1,4 @@
 export enum ChatgptModel {
-  turbo = 'text-davinci-002-render-sha',
+  turbo = 'gpt-4',
   normal = 'text-davinci-002-render-paid',
 }
