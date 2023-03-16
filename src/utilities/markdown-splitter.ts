@@ -77,10 +77,7 @@ function convertChunksToDiscordMarkdown(chunks: string[]): string[] {
     replacement: (content: string, node: HTMLElement) => {
       const codeElement = node.querySelector('code');
       const codeContent = codeElement?.textContent || content;
-      const languageClass = codeElement?.getAttribute('class') || '';
-      const language = languageClass.replace('language-', '');
-
-      return `\`\`\`${language}\n${codeContent}\n\`\`\``;
+      return `\`\`\`\n${codeContent}\n\`\`\``;
     },
   });
 
