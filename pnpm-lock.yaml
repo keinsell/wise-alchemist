@@ -18,7 +18,6 @@ specifiers:
   '@sentry/node': ^7.43.0
   '@sentry/profiling-node': ^0.2.2
   '@sentry/tracing': ^7.43.0
-  '@sentry/types': ^7.43.0
   '@types/eslint': ^8.21.1
   '@types/eslint-plugin-prettier': ^3.1.0
   '@types/jest': 29.4.0
@@ -92,7 +91,6 @@ dependencies:
   '@sentry/node': 7.43.0
   '@sentry/profiling-node': 0.2.2
   '@sentry/tracing': 7.43.0
-  '@sentry/types': 7.43.0
   bing-chat: 0.2.1
   bull: 4.10.4
   cache-manager: 5.1.7

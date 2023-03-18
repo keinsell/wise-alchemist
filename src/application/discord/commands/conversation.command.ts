@@ -5,7 +5,6 @@ import { CloseConversationByDiscordChannelUsecase } from 'src/boundary-context/c
 import { ChangeModelByDiscordChannelUsecase } from '../../../boundary-context/conversation/usecase/change-model-by-discord-channel/change-model-by-discord-channel.usecase';
 import { AccountService } from '../../../boundary-context/account/account.service';
 import { ChatgptModel } from '../../../boundary-context/completion/providers/content-generation/chatgpt/chatgpt.model';
-import { SentryCreateTransaction } from '../../../infrastructure/sentry/decorators.sentry';
 
 @Discord()
 @Injectable()
@@ -15,7 +14,6 @@ export class DiscordConversationCommand {
     private changeConversation: ChangeModelByDiscordChannelUsecase,
     private accountService: AccountService,
   ) {}
-
   @Slash({ description: 'Close actual conversation.', name: 'close' })
   async close(interaction: CommandInteraction) {
     await interaction.deferReply({ ephemeral: true });
@@ -52,10 +50,6 @@ export class DiscordConversationCommand {
     await this.switchConversation(interaction, ChatgptModel.legacy);
   }
 
-  @SentryCreateTransaction({
-    name: 'Switch Conversation Command',
-    op: 'command',
-  })
   private async switchConversation(
     interaction: CommandInteraction,
     model: ChatgptModel,

@@ -1,13 +1,15 @@
 import {
   InjectQueue,
+  JOB_REF,
   OnQueueActive,
   OnQueueFailed,
   Process,
   Processor,
 } from '@nestjs/bull';
-import { Injectable, Logger, Scope } from '@nestjs/common';
+import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
 import Bull, { Job } from 'bull';
 import { PrismaService } from 'src/infrastructure/prisma/prisma.infra';
+import { ChatgptModel } from '../providers/content-generation/chatgpt/chatgpt.model';
 import { ChatgptLargeLanguageModelService } from '../providers/content-generation/chatgpt/chatgpt.large-language-model.service';
 import { Message, Prompt } from '@prisma/client';
 import {
@@ -19,7 +21,7 @@ import { DiscordStartTypingEvent } from 'src/application/discord/events/discord-
 import { DiscordStopTypingEvent } from 'src/application/discord/events/discord-stop-typing/discord-stop-typing.event';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import ms from 'ms';
-import { captureException, setUser, startTransaction } from '@sentry/node';
+import { captureException, setUser, startTransaction } from "@sentry/node";
 
 export interface CompletionTask {
   promptId: number;
@@ -132,7 +134,6 @@ export class CompletionProcessor {
       description: `Content generation for prompt ${prompt.id} using ${model} model`,
       tags: {
         user: prompt.message.author,
-        model: model,
       },
     });
 
