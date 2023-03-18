@@ -10,10 +10,13 @@ import { isLeft } from 'fp-ts/lib/Either';
 import { Conversation } from '@prisma/client';
 import { OpenConversationByDiscordChannelUsecase } from 'src/boundary-context/conversation/usecase/open-conversation-by-discord-channel/open-conversation-by-discord-channel.usecase';
 import { Exception } from 'src/shared/domain-error';
+import { SentryCreateTransaction } from '../../../infrastructure/sentry/decorators.sentry';
 
 @Discord()
 @Injectable()
 export class DiscordOnMessageEvent {
+  private logger = new Logger('discord.on-message.event');
+
   constructor(
     private accountService: AccountService,
     private messageService: MessageService,
@@ -21,8 +24,11 @@ export class DiscordOnMessageEvent {
     private getConversation: GetConversationByDiscordChannelUsecase,
     private openConversation: OpenConversationByDiscordChannelUsecase,
   ) {}
-  private logger = new Logger('discord.on-message.event');
 
+  @SentryCreateTransaction({
+    name: 'On Message Listener',
+    op: 'listener',
+  })
   @On({ event: 'messageCreate' })
   async messageCreate(
     [message]: ArgsOf<'messageCreate'>,
