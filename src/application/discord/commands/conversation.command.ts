@@ -37,70 +37,47 @@ export class DiscordConversationCommand {
     name: 'fast',
   })
   async turbo(interaction: CommandInteraction) {
-    await interaction.deferReply({ ephemeral: true });
-
-    const account = await this.accountService.authenticateAccountByDiscordId(
-      interaction.user.id,
-    );
-
-    const conversation = await this.changeConversation.execute({
-      discordChannelId: interaction.channelId!,
-      accountId: interaction.user.id,
-      model: ChatgptModel.turbo,
-    });
-
-    if (conversation._tag === 'Left') {
-      return await interaction.editReply(`Error: ${conversation.left.message}`);
-    }
-
-    await interaction.editReply(
-      `Switched to ${conversation.right.id} using ${conversation.right.model} model.`,
-    );
+    await this.switchConversation(interaction, ChatgptModel.turbo);
   }
 
   @Slash({ description: 'Use conversation with smarter model.', name: 'smart' })
   async smart(interaction: CommandInteraction) {
-    await interaction.deferReply({ ephemeral: true });
-
-    const account = await this.accountService.authenticateAccountByDiscordId(
-      interaction.user.id,
-    );
-
-    const conversation = await this.changeConversation.execute({
-      discordChannelId: interaction.channelId!,
-      accountId: interaction.user.id,
-      model: ChatgptModel.normal,
-    });
-
-    if (conversation._tag === 'Left') {
-      return await interaction.editReply(`Error: ${conversation.left.message}`);
-    }
-
-    await interaction.editReply(
-      `Switched to ${conversation.right.id} using ${conversation.right.model} model.`,
-    );
+    await this.switchConversation(interaction, ChatgptModel.normal);
   }
 
   @Slash({ description: 'Use conversation with legacy model.', name: 'legacy' })
   async legacy(interaction: CommandInteraction) {
+    await this.switchConversation(interaction, ChatgptModel.legacy);
+  }
+
+  private async switchConversation(
+    interaction: CommandInteraction,
+    model: ChatgptModel,
+  ) {
     await interaction.deferReply({ ephemeral: true });
 
-    const account = await this.accountService.authenticateAccountByDiscordId(
-      interaction.user.id,
-    );
+    try {
+      const account = await this.accountService.authenticateAccountByDiscordId(
+        interaction.user.id,
+      );
 
-    const conversation = await this.changeConversation.execute({
-      discordChannelId: interaction.channelId!,
-      accountId: interaction.user.id,
-      model: ChatgptModel.legacy,
-    });
+      const conversation = await this.changeConversation.execute({
+        discordChannelId: interaction.channelId!,
+        accountId: account.id,
+        model: model,
+      });
 
-    if (conversation._tag === 'Left') {
-      return await interaction.editReply(`Error: ${conversation.left.message}`);
+      if (conversation._tag === 'Left') {
+        return await interaction.editReply(
+          `Error: ${conversation.left.message}`,
+        );
+      }
+
+      await interaction.editReply(
+        `Switched to ${conversation.right.id} using ${conversation.right.model} model.`,
+      );
+    } catch (e) {
+      await interaction.editReply(`Error: ${e.message}`);
     }
-
-    await interaction.editReply(
-      `Switched to ${conversation.right.id} using ${conversation.right.model} model.`,
-    );
   }
 }

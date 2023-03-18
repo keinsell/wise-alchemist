@@ -44,8 +44,12 @@ export class ChangeModelByDiscordChannelUsecase extends Usecase<
 
     const newConversation = await this.prisma.conversation.create({
       data: {
-        account_id: conversation.account_id,
-        discord_channel_id: conversation.discord_channel_id,
+        account: {
+          connect: {
+            id: request.accountId,
+          },
+        },
+        discord_channel_id: request.discordChannelId,
         model: request.model,
         isArchived: false,
       },
