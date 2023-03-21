@@ -36,7 +36,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@prisma/client": "^4.10.1",
     "@sentry/node": "^7.43.0",
-    "@sentry/profiling-node": "^0.2.2",
+    "@sentry/profiling-node": "^0.3.0",
     "@sentry/tracing": "^7.43.0",
     "bing-chat": "^0.2.1",
     "bull": "^4.10.4",
