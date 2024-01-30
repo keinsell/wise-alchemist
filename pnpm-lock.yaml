@@ -57,7 +57,7 @@ specifiers:
   nodemon: ^2.0.20
   prettier: ^2.3.2
   prettier-plugin-packagejson: 2.4.3
-  prettier-plugin-prisma: 4.10.0
+  prettier-plugin-prisma: 4.13.0
   prettier-plugin-properties: 0.2.0
   prettier-plugin-sh: 0.12.8
   prisma: ^4.10.1
@@ -145,7 +145,7 @@ devDependencies:
   nodemon: 2.0.20
   prettier: 2.8.4
   prettier-plugin-packagejson: 2.4.3_prettier@2.8.4
-  prettier-plugin-prisma: 4.10.0_prettier@2.8.4
+  prettier-plugin-prisma: 4.13.0_prettier@2.8.4
   prettier-plugin-properties: 0.2.0
   prettier-plugin-sh: 0.12.8_prettier@2.8.4
   prisma: 4.10.1
@@ -1519,8 +1519,8 @@ packages:
     resolution: {integrity: sha512-B3tcTxjx196nuAu1GOTKO9cGPUgTFHYRdkPkTS4m5ptb2cejyBlH9X7GOfSt3xlI7p4zAJDshJP4JJivCg9ouA==}
     requiresBuild: true
 
-  /@prisma/prisma-fmt-wasm/4.10.0-85.d02666423b9d2b618381d5bee85532527a012123:
-    resolution: {integrity: sha512-0ZBIrOQ3Glr4l7l/ehu+nl8EzJ/FgqNjlhVodEWCk649DVeb7+czOrpCDv+DJO3uU9Xai4mBQ5TifzYzGsndNQ==}
+  /@prisma/prisma-fmt-wasm/4.13.0-52.integration-mobc-upstream-d100a9299fcb9cffb064301998e9a94ce2722c49:
+    resolution: {integrity: sha512-12dZRXW36s3hRHLeD8c4S3o1ZZcnFt1NxhBrSlYepnMxatfkj5S8aIDP/G+zzUqucB//kGZZWNX3eUcmxMsEqw==}
     dev: true
 
   /@redis/bloom/1.2.0_@redis+client@1.5.6:
@@ -5900,13 +5900,13 @@ packages:
       synckit: 0.8.5
     dev: true
 
-  /prettier-plugin-prisma/4.10.0_prettier@2.8.4:
-    resolution: {integrity: sha512-tSt7ILOdva2IXbHzzqsBxwSKgsbNQQGUwtCpKnFpjMACIjbX4ghZTM9jYuZMfByCjhv0IJLl+eQlfxO17rRLew==}
-    engines: {node: '>=14'}
+  /prettier-plugin-prisma/4.13.0_prettier@2.8.4:
+    resolution: {integrity: sha512-bnOWoQTVXM9VWBErPGE6rVgI8kCQts+DMQolg7Sj/Q0/oAlpDYOhce4ljQKf5BhJW061yrB3+CRVps6tNcUkQg==}
+    engines: {node: '>=14', npm: '>=8'}
     peerDependencies:
       prettier: '>=2'
     dependencies:
-      '@prisma/prisma-fmt-wasm': 4.10.0-85.d02666423b9d2b618381d5bee85532527a012123
+      '@prisma/prisma-fmt-wasm': 4.13.0-52.integration-mobc-upstream-d100a9299fcb9cffb064301998e9a94ce2722c49
       prettier: 2.8.4
     dev: true
 
