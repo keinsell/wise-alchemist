@@ -52,7 +52,7 @@ specifiers:
   jest: 29.5.0
   keyv: ^4.5.2
   lint-staged: 13.2.0
-  marked: ^4.2.12
+  marked: ^5.0.0
   ms: ^2.1.3
   nodemon: ^2.0.20
   prettier: ^2.3.2
@@ -103,7 +103,7 @@ dependencies:
   gpt-3-encoder: 1.1.4
   ioredis: 5.3.1
   keyv: 4.5.2
-  marked: 4.2.12
+  marked: 5.0.0
   ms: 2.1.3
   redis: 4.6.5
   redis-url: 1.2.1
@@ -5220,9 +5220,9 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /marked/4.2.12:
-    resolution: {integrity: sha512-yr8hSKa3Fv4D3jdZmtMMPghgVt6TWbk86WQaWhDloQjRSQhMMYCAro7jP7VDJrjjdV8pxVxMssXS8B8Y5DZ5aw==}
-    engines: {node: '>= 12'}
+  /marked/5.0.0:
+    resolution: {integrity: sha512-YQ6+L9l/NSBDjFgCQQebmTCc62EUdZ5RpIZ7A/FmC8IYMB5s7Cz8sT7imuMAkbIL4CvXpQLdW45fpK5UwiU7DA==}
+    engines: {node: '>= 18'}
     hasBin: true
     dev: false
 
